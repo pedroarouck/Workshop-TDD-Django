@@ -1,52 +1,53 @@
 Models
 ======
 
-
-Creating an app
+Criando um app
 ---------------
 
-It is generally a good practice to separate your Django projects into multiple specialized (and sometimes reusable) apps. Additionally every Django model must live in an app so you'll need at least one app for your project.
+Geralmente é uma boa prática separar seus projetos Django em vários aplicativos especializados (e às vezes reutilizáveis). Além disso, todo modelo Django deve residir em um aplicativo, portanto, você precisará de pelo menos um aplicativo para seu projeto.
 
-Let's create an app for blog entries and related models.  We'll call the app ``blog``:
+Vamos criar um aplicativo para entradas de blog e modelos relacionados. Chamaremos o aplicativo de ``blog``:
 
 .. code-block:: bash
 
     $ python manage.py startapp blog
 
-This command should have created a ``blog`` directory with the following files and a subdirectory, migrations::
+Este comando deve ter criado um diretório ``blog`` com os seguintes arquivos e um subdiretório, migrations::
 
     __init__.py
     admin.py
+    apps.py
     migrations
     models.py
     tests.py
     views.py
 
-We'll be focusing on the ``models.py`` file below.
+Vamos nos concentrar no arquivo ``models.py``.
 
-Before we can use our app we need to add it to our ``INSTALLED_APPS`` in our settings file (``myblog/settings.py``).  This will allow Django to discover the models in our ``models.py`` file so they can be added to the database when running migrate.
+Antes de podermos usar nosso aplicativo, precisamos adicioná-lo ao nosso ``INSTALLED_APPS`` em nosso arquivo de configurações (myblog/settings.py). Isso permitirá que o Django descubra os modelos em nosso arquivo ``models.py`` para que possam ser adicionados ao banco de dados ao executar a migração.
 
 .. code-block:: python
 
-    INSTALLED_APPS = (
+    INSTALLED_APPS = [
+        'blog.apps.BlogConfig',
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+    ]
 
-        'blog',
-    )
 
 .. NOTE::
-    Just to make sure we are on the same page, your project structure should
-    look like this:
+    Apenas para ter certeza de que estamos na mesma página, a estrutura do seu projeto deve
+    parece com isso:
 
     ::
 
         ├── blog
         │   ├── admin.py
+        │   ├── apps.py
         │   ├── __init__.py
         │   ├── migrations
         │   │   └── __init__.py
@@ -57,24 +58,22 @@ Before we can use our app we need to add it to our ``INSTALLED_APPS`` in our set
         ├── manage.py
         ├── myblog
         │   ├── __init__.py
+        │   ├── asgi.py
         │   ├── settings.py
         │   ├── urls.py
         │   └── wsgi.py
         └── requirements.txt
 
 
-Creating a model
+Criando um Model
 ----------------
+Primeiro, vamos criar um model de entrada de blog escrevendo o código abaixo em nosso arquivo `blog/models.py`.
+Models são objetos usados para fazer interface com seus dados e são descritos na `documentação do Django sobre models`_.
+Nosso model corresponderá a uma tabela de banco de dados que conterá os dados para nossa entrada de blog.
+Uma entrada de blog será representada por uma instância de nossa classe de model ``Entry`` e cada instância de model ``Entry``
+identificará uma coluna em nossa tabela de banco de dados
 
-First, let's create a blog entry model by writing the code below in our
-`blog/models.py` file. Models are objects used to interface with your
-data, and are described in the `Django model documentation`_. Our model
-will correspond to a database table which will hold the data for our
-blog entry. A blog entry will be represented by an instance of our
-``Entry`` model class and each ``Entry`` model instance will identify a
-row in our database table.
-
-.. _Django model documentation: https://docs.djangoproject.com/en/1.7/topics/db/models/
+.. _documentação do Django sobre models: https://docs.djangoproject.com/pt-br/4.2/topics/db/models/
 
 .. code-block:: python
 
@@ -82,42 +81,43 @@ row in our database table.
 
 
     class Entry(models.Model):
-        title = models.CharField(max_length=500)
-        author = models.ForeignKey('auth.User')
-        body = models.TextField()
-        created_at = models.DateTimeField(auto_now_add=True, editable=False)
-        modified_at = models.DateTimeField(auto_now=True, editable=False)
+    title = models.CharField(max_length=500)
+    author = models.ForeignKey('auth.User', on_delete=models.PROTECT)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
 
-If you aren't already familiar with databases, this code may be somewhat daunting. A good way to think about a model (or a database table) is as a sheet in a spreadsheet. Each field like the ``title`` or ``author`` is a column in the spreadsheet and each different instance of the model -- each individual blog entry in our project -- is a row in the spreadsheet.
+Se você ainda não está familiarizado com bancos de dados, esse código pode ser um pouco assustador. Uma boa maneira de pensar sobre um model (ou uma tabela de banco de dados) é como uma folha em uma planilha. Cada campo como o ``title`` ou ``author`` é uma coluna na planilha e cada instância diferente do model (cada entrada de blog individual em nosso projeto) é uma linha na planilha.
 
-To create the database table for our ``Entry`` model we need to make a migration and run migrate again:
+Para criar a tabela de banco de dados para nosso modelo ``Entry``, precisamos fazer uma migração e a executar novamente:
 
 .. code-block:: bash
 
     $ python manage.py makemigrations
     $ python manage.py migrate
 
-Don't worry about the details of migrations just yet, we'll learn about them in a later section of the tutorial. For now, just think of migrations as Django's way of managing changes to models and the corresponding database.
+Não se preocupe com os detalhes das migrações ainda, aprenderemos sobre elas em uma seção posterior do tutorial. Por enquanto, apenas pense nas migrações como a maneira do Django de gerenciar mudanças nos modelos e no banco de dados correspondente.
 
 .. TIP::
-    If you notice, this code is written in a very particular way. There are
-    two blank lines between imports and class definitions and the code is
-    spaced very particularly. There is a style guide for Python known as
-    `PEP8`_. A central tenet of Python is that code is read more frequently
-    than it is written. Consistent code style helps developers read and
-    understand a new project more quickly.
 
-    .. _PEP8: http://legacy.python.org/dev/peps/pep-0008/
+    Se você notar, esse código é escrito de uma maneira muito particular. Há
+    duas linhas em branco entre importações e definições de classe e o código é
+    espaçado muito particularmente. Existe um guia de estilo para Python conhecido como
+    `PEP8`_. Um princípio central do Python é que o código é lido com mais frequência
+    do que está escrito. O estilo de código consistente ajuda os desenvolvedores a ler e
+    entender um novo projeto mais rapidamente.
+
+    .. _PEP8: https://peps.python.org/pep-0008/
 
 
-Creating entries from the admin site
-------------------------------------
+Criando entradas pela interface de administração
+------------------------------------------------
 
-We don't want to manually add entries to the database every time we want to update our blog.  It would be nice if we could use a login-secured webpage to create blog entries.  Fortunately Django's admin interface can do just that.
+Não queremos adicionar entradas manualmente ao banco de dados toda vez que queremos atualizar nosso blog. Seria bom se pudéssemos usar uma página da Web protegida por login para criar entradas de blog. Felizmente, a interface de administração do Django pode fazer exatamente isso.
 
-In order to create blog entries from the `admin interface`_ we need to register our ``Entry`` model with the admin site.  We can do this by modifying our ``blog/admin.py`` file to register the ``Entry`` model with the admin interface:
+Para criar entradas de blog a partir da `interface de administração`_, precisamos registrar nosso modelo de ``Entry`` na interface de administração. Podemos fazer isso modificando nosso arquivo ``blog/admin.py`` para registrar o modelo ``Entry`` com a interface administrativa:
 
-.. _admin interface: https://docs.djangoproject.com/en/1.7/ref/contrib/admin/
+.. _interface de administração: https://docs.djangoproject.com/en/4.2/ref/contrib/admin/
 
 .. code-block:: python
 
@@ -128,37 +128,24 @@ In order to create blog entries from the `admin interface`_ we need to register 
 
     admin.site.register(Entry)
 
-Now, start up the development server again and navigate to the admin site (http://localhost:8000/admin/) and create a blog entry.
+Agora, inicie o servidor de desenvolvimento novamente e navegue até a interface de administração (http://localhost:8000/admin/) e crie uma entrada de blog.
 
 .. code-block:: bash
 
     $ python manage.py runserver
 
-First click the "Add" link next to *Entries* in the admin site.
 
-.. image:: _static/02-01_add_entry.png
+Nosso primeiro teste: método __str__
+------------------------------------
 
-Next fill in the details for our first blog entry and click the *Save* button.
+Na lista de alterações do administrador, nossas entradas têm o título inútil *Entry object*.
+Adicione outra entrada igual à primeira, elas ficarão idênticas. Podemos personalizar a
+forma como os modelos são referenciados criando um método ``__str__`` em nossa classe de modelo.
+Os modelos são um bom lugar para colocar esse tipo de código reutilizável que é específico de um modelo.
 
-.. image:: _static/02-02_create_entry.png
+Vamos primeiro criar um teste demonstrando o comportamento que gostaríamos de ver.
 
-Our blog entry was created
-
-.. image:: _static/02-03_entry_added.png
-
-
-Our first test: __str__ method
-----------------------------------
-
-In the admin change list our entries have the unhelpful title
-*Entry object*. Add another entry just like the first one, they will
-look identical. We can customize the way models are referenced by
-creating a ``__str__`` method on our model class. Models are a good
-place to put this kind of reusable code that is specific to a model.
-
-Let's first create a test demonstrating the behavior we'd like to see.
-
-All the tests for our app will live in the ``blog/tests.py`` file. Delete everything in that file and start over with a failing test:
+Todos os testes para nosso aplicativo ficarão no arquivo ``blog/tests.py``. Exclua tudo nesse arquivo e comece novamente com um teste com falha:
 
 .. code-block:: python
 
@@ -170,7 +157,7 @@ All the tests for our app will live in the ``blog/tests.py`` file. Delete everyt
         def test_string_representation(self):
             self.fail("TODO Test incomplete")
 
-Now run the test command to ensure our app's single test fails as expected:
+Agora execute o comando test para garantir que o teste único do nosso aplicativo falhe conforme o esperado:
 
 .. code-block:: bash
 
@@ -178,48 +165,41 @@ Now run the test command to ensure our app's single test fails as expected:
 
 ::
 
+    Found 1 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     F
     ======================================================================
-    FAIL: test_string_representation (blog.tests.EntryModelTest)
+    FAIL: test_string_representation (blog.tests.EntryModelTest.test_string_representation)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
     ...
     AssertionError: TODO Test incomplete
 
     ----------------------------------------------------------------------
-    Ran 1 test in 0.001s
+    Ran 1 test in 0.002s
 
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-If we read the output carefully, the ``manage.py test`` command did a few things. First, it created a test database. This is important because we wouldn't want tests to actually modify our real database. Secondly, it executed each "test" in ``blog/tests.py``. If all goes well, the test runner isn't very chatty, but when failures occur like in our test, the test runner prints lots of information to help you debug your failing test.
 
-Now we're ready to create a real test.
+Se lermos a saída com cuidado, o comando ``manage.py test`` fez algumas coisas. Primeiro, ele criou um banco de dados de teste. Isso é importante porque não queremos que os testes realmente modifiquem nosso banco de dados real. Em segundo lugar, executou cada "teste" em ``blog/tests.py``. Se tudo correr bem, o executor de teste não é muito falador, mas quando ocorrem falhas como em nosso teste, o executor de teste imprime muitas informações para ajudá-lo a depurar seu teste com falha.
+
+Agora estamos prontos para criar um teste real.
 
 .. TIP::
-    There are lots of resources on unit testing but a great place to start is
-    the official Python documentation on the `unittest`_ module and the
-    `Testing Django applications`_ docs. They also have good recommendations
-    on naming conventions which is why our test classes are named like
-    ``SomethingTest`` and our methods named ``test_something``. Because many
-    projects adopt similar conventions, developers can more easily understand
-    the code.
 
-    .. _unittest: http://docs.python.org/2.7/library/unittest.html
-    .. _Testing Django applications: https://docs.djangoproject.com/en/1.7/topics/testing/overview/
+    Existem muitos recursos sobre testes de unidade, mas um ótimo lugar para começar
+    é a documentação oficial do Python no módulo `unittest`_ e os documentos
+    `Testando aplicações Django`_. Eles também têm boas recomendações sobre convenções
+    de nomenclatura, e é por isso que nossas classes de teste são nomeadas como
+    SomethingTest e nossos métodos são denominados test_something. Como muitos projetos
+    adotam convenções semelhantes, os desenvolvedores podem entender o código com mais facilidade.
 
-.. NOTE::
-   `django.test.TestCase` extends the `unittest.TestCase` class.
-   Anything you would do in the base `unittest` class will work in
-   Django's `TestCase` as well.
+    .. _unittest: https://docs.python.org/3/library/unittest.html
+    .. _Testando aplicações Django: https://docs.djangoproject.com/en/4.2/topics/testing/
 
-   You can read more about `django.test.TestCase`_ in the Django documentation and the `unittest.TestCase`_ parent class in the Python documentation.
-
-   .. _django.test.TestCase: https://docs.djangoproject.com/en/1.7/topics/testing/tools/#django.test.TestCase
-   .. _unittest.TestCase: https://docs.python.org/3.4/library/unittest.html#unittest.TestCase
-
-Let's write our test to ensure that a blog entry's string representation is equal to its title.  We need to modify our tests file like so:
+Vamos escrever nosso teste para garantir que a representação de string de uma entrada de blog seja igual ao seu título. Precisamos modificar nosso arquivo de testes da seguinte forma:
 
 .. code-block:: python
 
@@ -234,7 +214,7 @@ Let's write our test to ensure that a blog entry's string representation is equa
             entry = Entry(title="My entry title")
             self.assertEqual(str(entry), entry.title)
 
-Now let's run our tests again:
+Agora, vamos rodar os testes novamente:
 
 .. code-block:: bash
 
@@ -242,15 +222,17 @@ Now let's run our tests again:
 
 ::
 
+    Found 1 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     F
     ======================================================================
-    FAIL: test_string_representation (blog.tests.EntryModelTest)
+    FAIL: test_string_representation (blog.tests.EntryModelTest.test_string_representation)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
     ...
-    AssertionError: 'Entry object' != 'My entry title'
-    - Entry object
+    AssertionError: 'Entry object (None)' != 'My entry title'
+    - Entry object (None)
     + My entry title
 
 
@@ -260,9 +242,9 @@ Now let's run our tests again:
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-Our test fails again, but this time it fails because we haven't customized our ``__str__`` method yet so the string representation for our model is still the default *Entry object*.
+Nosso teste falha novamente, mas desta vez falha porque ainda não personalizamos nosso método ``__str__``, então a representação de string para nosso model ainda é o *Entry object* padrão.
 
-Let's add a ``__str__`` method to our model that returns the entry title.  Our ``models.py`` file should look something like this:
+Vamos adicionar um método ``__str__`` ao nosso modelo que retorna o título da entrada. Nosso arquivo ``models.py`` deve se parecer com isto:
 
 .. code-block:: python
 
@@ -271,7 +253,7 @@ Let's add a ``__str__`` method to our model that returns the entry title.  Our `
 
     class Entry(models.Model):
         title = models.CharField(max_length=500)
-        author = models.ForeignKey('auth.User')
+        author = models.ForeignKey('auth.User', on_delete=models.PROTECT)
         body = models.TextField()
         created_at = models.DateTimeField(auto_now_add=True, editable=False)
         modified_at = models.DateTimeField(auto_now=True, editable=False)
@@ -279,11 +261,9 @@ Let's add a ``__str__`` method to our model that returns the entry title.  Our `
         def __str__(self):
             return self.title
 
-If you start the development server and take a look at the admin interface (http://localhost:8000/admin/) again, you will see the entry titles in the list of entries.
+Se você iniciar o servidor de desenvolvimento e verificar a interface administrativa (http://localhost:8000/admin/) novamente, verá os títulos das entradas na lista de entradas.
 
-.. image:: _static/02-04_entry_w_name.png
-
-Now if we run our test again we should see that our single test passes:
+Agora, se executarmos nosso teste novamente, veremos que nosso único teste passa.
 
 .. code-block:: bash
 
@@ -291,29 +271,29 @@ Now if we run our test again we should see that our single test passes:
 
 ::
 
+    Found 1 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     .
     ----------------------------------------------------------------------
-    Ran 1 test in 0.000s
+    Ran 1 test in 0.001s
 
     OK
     Destroying test database for alias 'default'...
 
-We've just written our first test and fixed our code to make our test pass.
 
-Test Driven Development (TDD) is all about writing a failing test and then making it pass. If you were to write your code first, then write tests, it's harder to know that the test you wrote really does test what you want it to.
+Acabamos de escrever nosso primeiro teste e corrigimos nosso código para fazer nosso teste passar.
 
-While this may seem like a trivial example, good tests are a way to document the expected behavior of a program. A great test suite is a sign of a mature application since bits and pieces can be changed easily and the tests will ensure that the program still works as intended. The Django framework itself has a massive unit test suite with thousands of tests.
+Test Driven Development (TDD) é sobre como escrever um teste com falha e, em seguida, fazê-lo passar. Se você escrevesse seu código primeiro e depois escrevesse os testes, seria mais difícil saber se o teste que você escreveu realmente testa o que você deseja.
 
+Embora isso possa parecer um exemplo trivial, bons testes são uma maneira de documentar o comportamento esperado de um programa. Um ótimo conjunto de testes é um sinal de um aplicativo maduro, pois partes e partes podem ser alteradas facilmente e os testes garantirão que o programa ainda funcione como pretendido. A própria estrutura do Django possui um enorme conjunto de testes de unidade com milhares de testes.
 
-Another Test: Entrys
---------------------
+Próximo Teste: Entrys
+---------------------
 
-Did you notice that the pluralization of entry is misspelled in the admin interface?  "Entrys" should instead read "Entries".  Let's write a test to verify that when Django correctly pluralizes "entry" to "entries".
+Você notou que o plural de entry está escrito incorretamente na interface de administração? "Entrys" deve ser lida como "Entries". Vamos escrever um teste para verificar se o Django pluraliza corretamente "Entry" para "Entries".
 
-.. image:: _static/02-05_entrys_spelling.png
-
-Let's add a test to our ``EntryModelTest`` class:
+Vamos adicionar um teste à nossa classe ``EntryModelTest``:
 
 .. code-block:: python
 
@@ -322,11 +302,11 @@ Let's add a test to our ``EntryModelTest`` class:
 
 .. NOTE::
 
-    This test uses the model ``_meta`` class (created based on the ``Meta`` class we will define).  This is an example of an advanced Django feature.  The ``_meta`` class is currently undocumented.
+    Este teste usa a classe ``_meta`` do modelo (criada com base na classe ``Meta`` que definiremos). Este é um exemplo de um recurso avançado do Django.
 
-Now let's make our test pass by specifying the verbose name for our model.
+Agora vamos fazer nosso teste passar especificando o nome detalhado para nosso modelo.
 
-Add a ``Meta`` inner class inside our ``Entry`` model, like this:
+Adicione uma classe interna ``Meta`` dentro do nosso modelo ``Entry``, assim:
 
 .. code-block:: python
 
@@ -339,6 +319,6 @@ Add a ``Meta`` inner class inside our ``Entry`` model, like this:
 
 .. HINT::
 
-    See the Django documentation for information on `verbose_name_plural`_ in the Meta class.
+    Consulte a documentação do Django para obter informações sobre `verbose_name_plural`_ na classe Meta.
 
-.. _verbose_name_plural: https://docs.djangoproject.com/en/1.7/ref/models/options/#verbose-name-plural
+.. _verbose_name_plural: https://docs.djangoproject.com/en/4.2/ref/models/options/#verbose-name-plural
