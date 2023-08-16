@@ -1,15 +1,15 @@
 Aquecendo os Motores
-===============
+====================
 
 Verificando Setup
----------------
+------------------
 
 Antes de começarmos, vamos apenas garantir que o Python e o Django estejam
 instalados corretamente e sejam as versões apropriadas
 
 A execução do seguinte comando no terminal Mac OS ou Linux ou no prompt de
- comando do Windows deve mostrar a versão do Python. Para este workshop,
- você deve ter uma versão 3.x do Python.
+comando do Windows deve mostrar a versão do Python. Para este workshop,
+você deve ter uma versão 3.x do Python.
 
 .. code-block:: bash
 
@@ -50,6 +50,7 @@ do projeto.
 
     $ django-admin startproject myblog
     $ cd myblog
+
 Executar esse comando cria um novo diretório chamado ``myblog/`` com alguns
 arquivos e pastas. Notavelmente, há um arquivo ``manage.py`` que é usado para
 gerenciar vários aspectos do seu aplicativo Django, como criar o banco de dados
@@ -59,7 +60,7 @@ para o aplicativo, como como se conectar ao banco de dados, e ``myblog/urls.py``
 que mapeia as URLs chamadas por um navegador da Web para o código Python apropriado.
 
 Configurando o Banco de Dados
-----------------------------
+-----------------------------
 
 Uma arquitetura em comum de praticamente todos os sites que contêm conteúdo
 gerado pelo usuário é um banco de dados. Bancos de dados facilitam uma boa
@@ -134,8 +135,6 @@ Agora visite a interface de administração em seu navegador (http://localhost:8
 
     Leia mais sobre o servidor de desenvolvimento na `documentação oficial`_.
 
-    Read more about the development server in the `official documentation`_.
-
     Saia do servidor segurando a tecla ctrl e pressionando C
 
 
@@ -191,7 +190,7 @@ desenvolvimento para nosso site Django, basta executar:
     $ pip install -r requirements.txt
 
 .. NOTE::
-Observe que não precisamos digitar este comando agora, pois já instalamos todas as dependências.
+    Observe que não precisamos digitar este comando agora, pois já instalamos todas as dependências.
 
 
 .. _documentação oficial: https://test-driven-django-development.readthedocs.io/en/latest/01-getting-started.html
