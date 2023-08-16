@@ -1,78 +1,75 @@
-Getting started
+Aquecendo os Motores
 ===============
 
-Verifying setup
+Verificando Setup
 ---------------
 
-Before we get started, let's just make sure that Python and Django are
-installed correctly and are the appropriate versions.
+Antes de começarmos, vamos apenas garantir que o Python e o Django estejam
+instalados corretamente e sejam as versões apropriadas
 
-Running the following command in the Mac OS or Linux terminal or in the
-Windows command prompt should show the version of Python. For this workshop
-you should have a 3.x version of Python.
+A execução do seguinte comando no terminal Mac OS ou Linux ou no prompt de
+ comando do Windows deve mostrar a versão do Python. Para este workshop,
+ você deve ter uma versão 3.x do Python.
 
 .. code-block:: bash
 
     $ python -V
 
-You should also have `pip`_ installed on your machine.  Pip is a dependency
-management tool for installing and managing Python dependencies.  First let's
-install Django 1.7:
+Você também deve ter o `pip`_ instalado em sua máquina. Pip é uma ferramenta
+de gerenciamento de dependência para instalar e gerenciar dependências do
+Python. Primeiro vamos instalar o Django.
 
 .. code-block:: bash
 
-    $ pip install Django==1.7
-    Downloading/unpacking Django==1.7
-      Downloading Django-1.7-py2.py3-none-any.whl (7.4MB): 7.4MB downloaded
-    Installing collected packages: Django
-    Successfully installed Django
-    Cleaning up...
+    $ pip install django
+    Collecting django
+      Downloading Django-4.2.4-py3-none-any.whl (8.0 MB)
+       7.4MB downloaded
+    Installing collected packages: django
+    Successfully installed django-4.2.4
 
 .. HINT::
-   Things you should type into your terminal or command prompt will always
-   start with ``$`` in this workshop. Don't type the leading ``$`` though.
+   Coisas que você deve digitar em seu terminal ou prompt de comando sempre
+   começarão com ``$`` neste workshop. No entanto, não digite o ``$`` inicial.
 
-Running the next command will show the version of Django you have installed.
-You should have Django 1.7 installed.
+A execução do próximo comando mostrará a versão do Django que você instalou.
+Você deve ter o Django 4.2 instalado
 
 .. code-block:: bash
 
-    $ python -c "import django; print(django.get_version())"
-    1.7
+    $ python -m django --version
+    4.2.4
 
-
-Creating the project
+Criando o Projeto
 --------------------
 
-The first step when creating a new Django website is to create the project
-boilerplate files.
+A primeira etapa ao criar um novo site Django é criar os arquivos boilerplate
+do projeto.
 
 .. code-block:: bash
 
-    $ django-admin.py startproject myblog
+    $ django-admin startproject myblog
     $ cd myblog
+Executar esse comando cria um novo diretório chamado ``myblog/`` com alguns
+arquivos e pastas. Notavelmente, há um arquivo ``manage.py`` que é usado para
+gerenciar vários aspectos do seu aplicativo Django, como criar o banco de dados
+e executar o servidor web de desenvolvimento. Dois outros arquivos-chave que
+acabamos de criar são ``myblog/settings.py``, que contém informações de configuração
+para o aplicativo, como como se conectar ao banco de dados, e ``myblog/urls.py``,
+que mapeia as URLs chamadas por um navegador da Web para o código Python apropriado.
 
-Running this command created a new directory called ``myblog/`` with a few
-files and folders in it. Notably, there is a ``manage.py`` file which is a
-file used to manage a number of aspects of your Django application such as
-creating the database and running the development web server. Two other key
-files we just created are ``myblog/settings.py`` which contains
-configuration information for the application such as how to connect to the
-database and ``myblog/urls.py`` which maps URLs called by a web browser
-to the appropriate Python code.
+Configurando o Banco de Dados
+----------------------------
 
+Uma arquitetura em comum de praticamente todos os sites que contêm conteúdo
+gerado pelo usuário é um banco de dados. Bancos de dados facilitam uma boa
+separação entre código (Python e Django neste caso), marcação e scripts
+(HTML, CSS e JavaScript) e conteúdo real (banco de dados). Django e outras
+frameworks ajudam a orientar os desenvolvedores a como separar cada porção
+da aplicação.
 
-Setting up the database
------------------------
-
-One building block of virtually all websites that contain user-generated
-content is a database. Databases facilitate a good separation between
-code (Python and Django in this case), markup and scripts (HTML, CSS and
-JavaScript) and actual content (database). Django and other frameworks help
-guide developers to separate these concerns.
-
-First, let's create the database and a super user account for accessing the
-admin interface which we'll get to shortly:
+Primeiro, vamos criar o banco de dados e uma conta de superusuário para acessar a
+interface de administração que veremos em breve:
 
 .. code-block:: bash
 
@@ -80,143 +77,126 @@ admin interface which we'll get to shortly:
     Operations to perform:
       Apply all migrations: admin, contenttypes, auth, sessions
     Running migrations:
-      Applying contenttypes.0001_initial... OK
-      Applying auth.0001_initial... OK
-      Applying admin.0001_initial... OK
-      Applying sessions.0001_initial... OK
+      ...
     $ python manage.py createsuperuser
-    Username (leave blank to use 'zoidberg'):
-    Email address: zoidberg@example.com
+    Username (leave blank to use 'pedro'):
+    Email address:
     Password: ***
     Password (again): ***
     Superuser created successfully.
 
-After running this command, there will be a database file ``db.sqlite3``
-in the same directory as ``manage.py``. Right now, this database only has
-a few tables specific to Django. The command looks at ``INSTALLED_APPS`` in
-``myblog/settings.py`` and creates database tables for models defined in
-those apps' ``models.py`` files.
+Depois de executar este comando, haverá um arquivo de banco de dados
+``db.sqlite3`` no mesmo diretório que ``manage.py``. No momento, este banco
+de dados possui apenas algumas tabelas específicas para Django. O comando
+examina ``INSTALLED_APPS`` em ``myblog/settings.py`` e cria tabelas de banco de
+dados para modelos definidos nos arquivos ``models.py`` desses aplicativos.
 
-Later in this workshop, we will create models specific to the blog we are
-writing. These models will hold data like blog entries and comments on blog
-entries.
+Mais adiante neste workshop, criaremos modelos específicos para o blog que
+estamos escrevendo. Esses modelos manterão dados como entradas de blog e
+comentários em entradas de blog.
+
 
 .. HINT::
-    SQLite is a self-contained database engine. It is inappropriate for a
-    multi-user website but it works great for development. In production,
-    you would probably use PostgreSQL or MySQL. For more info on SQLite,
-    see the `SQLite documentation`_.
+    SQLite é um mecanismo de banco de dados independente. É inadequado para um site
+    multiusuário, mas funciona muito bem para o desenvolvimento. Em produção,
+    você provavelmente usaria PostgreSQL ou MySQL. Para obter mais informações sobre
+    o SQLite, consulte a `documentação do SQLite`_.
 
-    .. _SQLite documentation: http://sqlite.org/
+    .. _documentação do SQLite: https://sqlite.org/index.html
 
 
-The admin site
---------------
+A Interface de Administração
+----------------------------
+Um dos melhores recursos que o Django fornece é uma interface administrativa.
+Uma interface de administração é uma maneira de um administrador de um site
+interagir com o banco de dados por meio de uma interface da web que os visitantes
+regulares do site não têm permissão para usar. Em um blog, este seria o lugar
+onde o autor escreve novas entradas de blog.
 
-One of the killer features Django provides is an admin interface. An admin
-interface is a way for an administrator of a website to interact with the
-database through a web interface which regular website visitors are not
-allowed to use. On a blog, this would be where the author writes new blog
-entries.
+Vamos verificar nosso progresso executando o servidor de teste Django e
+visitando a interface de administração.
 
-Let's check our progress by running the Django test server and visiting the
-admin site.
-
-In your terminal, run the Django development server:
+Em seu terminal, execute o servidor de desenvolvimento Django:
 
 .. code-block:: bash
 
     $ python manage.py runserver
 
-Now visit the admin site in your browser (http://localhost:8000/admin/).
+Agora visite a interface de administração em seu navegador (http://localhost:8000/admin/).
+
 
 .. HINT::
-    The Django development server is a quick and simple web server used for
-    rapid development and not for long-term production use. The development
-    server reloads any time the code changes but some actions like adding
-    files do not trigger a reload and the server will need to be manually
-    restarted.
+    O servidor de desenvolvimento Django é um servidor web simples usado para
+    desenvolvimento rápido e não para uso em produção de longo prazo. O
+    servidor de desenvolvimento é recarregado sempre que o código é alterado,
+    mas algumas ações, como adicionar arquivos, não acionam uma recarga e o
+    servidor precisará ser reiniciado manualmente.
+
+    Leia mais sobre o servidor de desenvolvimento na `documentação oficial`_.
 
     Read more about the development server in the `official documentation`_.
 
-    Quit the server by holding the control key and pressing C.
+    Saia do servidor segurando a tecla ctrl e pressionando C
 
 
-Python Package Requirements File
---------------------------------
+Arquivo de requisitos do pacote Python
+--------------------------------------
 
-We want to use a few more Python packages besides Django.  We'll plan to use `WebTest`_ and `django-webtest`_ for our functional tests.  Let's install those also:
+Queremos usar mais alguns pacotes Python além do Django. Planejaremos usar o
+`WebTest`_ e o `django-webtest`_ para nossos testes funcionais. Vamos instalá-los também:
 
 .. code-block:: bash
 
     $ pip install webtest django-webtest
-    Downloading/unpacking webtest
+    Collecting webtest
       Downloading WebTest-2.0.16.zip (88kB): 88kB downloaded
         ...
-    Downloading/unpacking django-webtest
+    Collecting django-webtest
       Downloading django-webtest-1.7.7.tar.gz
         ...
-    Successfully installed webtest django-webtest six WebOb waitress beautifulsoup4
-    Cleaning up...
+    Successfully installed WebOb-1.8.7 beautifulsoup4-4.12.2 django-webtest-1.9.10 waitress-2.1.2 webtest-3.0.0
 
-We don't want to manually install our dependencies every time.  Let's create a `requirements file`_ listing our dependencies so we don't have to type them all out every time we setup our website on a new computer or anytime a package version updates.
+Não queremos instalar manualmente nossas dependências todas as vezes. Vamos criar
+um `arquivo de requisitos`_ listando nossas dependências para que não tenhamos que digitá-los
+toda vez que configurarmos nosso site em um novo computador ou sempre que uma versão do pacote
+for atualizada.
 
-First let's use `pip freeze`_ to list our dependencies and their versions:
+Primeiro vamos usar o `pip freeze`_ para listar nossas dependências e suas versões:
 
 .. code-block:: bash
 
     $ pip freeze
-    Django==1.7
-    WebOb==1.4
-    WebTest==2.0.16
-    beautifulsoup4==4.3.2
-    django-webtest==1.7.7
-    six==1.8.0
-    waitress==0.8.9
+    Django==4.2.4
+    WebOb==1.8.7
+    WebTest==3.0.0
+    beautifulsoup4==4.12.2
+    django-webtest==1.9.10
+    six==1.16.0
+    waitress==2.1.2
 
-We care about the ``Django``, ``WebTest``, and ``django-webtest`` lines here.  The other packages are sub-dependencies that were automatically installed and don't need to worry about them.  Let's create our ``requirements.txt`` file with instructions for installing these packages with the versions we have installed now::
+Nós nos preocupamos com as linhas ``Django``, ``WebTest`` e ``django-webtest`` que apareceram.
+Os demais pacotes são subdependências que foram instaladas automaticamente e não precisa se preocupar com eles.
+Vamos criar nosso arquivo  ``requirements.txt`` com instruções para instalar esses pacotes com as versões que instalamos agora:
 
-    Django==1.7
-    WebTest==2.0.16
-    django-webtest==1.7.7
+    Django==4.2.4
+    WebTest==3.0.0
+    django-webtest==1.9.10
 
-
-This file will allow us to install all Python dependencies at once with just one command.  Whenever our dependency files are upgraded or if we setup a new development environment for our Django website we'll need to run:
+Este arquivo nos permitirá instalar todas as dependências do Python de uma só vez com apenas um comando.
+Sempre que nossos arquivos de dependência forem atualizados ou se configurarmos um novo ambiente de
+desenvolvimento para nosso site Django, basta executar:
 
 .. code-block:: bash
 
     $ pip install -r requirements.txt
 
 .. NOTE::
-    Note that we do not need to type this command right now since we have already installed all dependencies.
+Observe que não precisamos digitar este comando agora, pois já instalamos todas as dependências.
 
-.. HINT::
 
-    If you are using virtualenvwrapper (or just virtualenv), you can create a new virtualenv, and test your requirements.txt file.  With virtualenvwrapper:
-
-    .. code-block:: bash
-
-        $ mkvirtualenv tddd-env2
-        $ workon tddd-env2
-        $ pip install -r requirements.txt
-        $ pip freeze
-        $ deactivate
-        $ workon YOUR_ORIGINAL_VENV
-
-    Or with virtualenv:
-
-    .. code-block:: bash
-
-        $ virtualenv venv2
-        $ source venv2/bin/activate
-        $ pip install -r requirements.txt
-        $ pip freeze
-        $ deactivate
-        $ source venv/bin/activate  # or whatever your original virtualenv was
-
-.. _official documentation: https://docs.djangoproject.com/en/1.7/intro/tutorial01/#the-development-server
-.. _WebTest: http://webtest.readthedocs.org/en/latest/
-.. _django-webtest: https://pypi.python.org/pypi/django-webtest/
-.. _pip: http://www.pip-installer.org/en/latest/installing.html
-.. _pip freeze: http://pip.readthedocs.org/en/latest/reference/pip_freeze.html
-.. _requirements file: http://pip.readthedocs.org/en/latest/user_guide.html#requirements-files
+.. _documentação oficial: https://test-driven-django-development.readthedocs.io/en/latest/01-getting-started.html
+.. _WebTest: https://docs.pylonsproject.org/projects/webtest/en/latest/
+.. _django-webtest: https://pypi.org/project/django-webtest/
+.. _pip: https://pip.pypa.io/en/stable/installation/
+.. _pip freeze: https://pip.pypa.io/en/latest/cli/pip_freeze/
+.. _arquivo de requisitos: https://pip.pypa.io/en/latest/user_guide/#requirements-files
