@@ -177,6 +177,8 @@ Nós nos preocupamos com as linhas ``Django``, ``WebTest`` e ``django-webtest`` 
 Os demais pacotes são subdependências que foram instaladas automaticamente e não precisa se preocupar com eles.
 Vamos criar nosso arquivo  ``requirements.txt`` com instruções para instalar esses pacotes com as versões que instalamos agora:
 
+.. code-block:: bash
+
     Django==4.2.4
     WebTest==3.0.0
     django-webtest==1.9.10
