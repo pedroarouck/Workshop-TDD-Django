@@ -1,3 +1,9 @@
+Importante
+==========
+Este é um trabalho feito pelo San Diego Python e usado para o workshop de Test-Driven Django.
+Meu objetivo é aumentar o alcance deste material, para isso, vou passar o workshop para o português do Brasil e atualizar o código para que funcione com as versões mais recentes das ferramentas usadas.
+
+
 Test-Driven Django Development
 ==============================
 
