@@ -1,24 +1,24 @@
-Forms
-=====
+Formulários
+===========
 
 
-Adding a Comment form
----------------------
+Adicionando um formulário
+-------------------------
 
-To allow users to create comments we need to accept a form submission.
-HTML forms are the most common method used to accept user input on web
-sites and send that data to a server. We can use
-`Django's form framework`_ for this task.
+Para permitir que os usuários criem comentários, precisamos aceitar o
+envio de um formulário. Os formulários HTML são o método mais comum usado
+para aceitar a entrada do usuário em sites da Web e enviar esses dados
+para um servidor. Podemos usar o `framework de formulários do Django`_ para esta tarefa.
 
-.. _Django's form framework: https://docs.djangoproject.com/en/1.7/topics/forms/
+.. _framework de formulários do Django: https://docs.djangoproject.com/en/4.2/topics/forms/
 
-First let's write some tests.  We'll need to create a blog ``Entry``
-and a ``User`` for our tests.  Let's make a `setup`_ method for our
-tests which creates an entry and adds it to the database. The `setup`_
-method is called before each test in the given test class so that each
-test will be able to use the ``User`` and ``Entry``.
+Primeiro vamos escrever alguns testes. Precisamos criar um blog ``Entry``
+e um ``User`` para nossos testes. Vamos criar um método de `setup`_ para
+nossos testes que cria uma entrada e a adiciona ao banco de dados.
+O método de `setup`_ é chamado antes de cada teste na classe de teste
+fornecida para que cada teste possa usar o ``User`` e ``Entry``.
 
-.. _setup: https://docs.python.org/3.4/library/unittest.html#unittest.TestCase.setUp
+.. _setup: https://docs.python.org/3/library/unittest.html#unittest.TestCase.setUpClass
 
 .. code-block:: python
 
@@ -28,8 +28,8 @@ test will be able to use the ``User`` and ``Entry``.
             user = get_user_model().objects.create_user('zoidberg')
             self.entry = Entry.objects.create(author=user, title="My entry title")
 
-Let's make sure we've imported ``CommentForm`` in our tests file.  Our
-imports should look like this:
+Vamos nos certificar de que importamos ``CommentForm`` nosso arquivo de testes.
+Nossas importações devem ficar assim:
 
 .. code-block:: python
 
@@ -39,34 +39,32 @@ imports should look like this:
     from .forms import CommentForm
     from .models import Entry, Comment
 
-Before we start testing our form remember that we are writing our tests
-before actually writing our CommentForm code. In other words, we're
-pretending that we've already written our code in the way that we want
-it to work, then we're writing tests for that not-yet-written code.
-Once we've seen that the tests have failed, we then write the actual
-code. Lastly, we run the tests again against our implemented code and,
-if necessary, modify the actual code so the tests run successfully.
+Antes de começarmos a testar nosso formulário, lembre-se de que estamos escrevendo
+nossos testes antes de realmente escrever nosso código de CommentForm. Em outras
+palavras, estamos fingindo que já escrevemos nosso código da maneira que queremos que
+funcione, então estamos escrevendo testes para esse código ainda não escrito. Depois
+de ver que os testes falharam, escrevemos o código real. Por fim, executamos os testes
+novamente em nosso código implementado e, se necessário, modificamos o código real para
+que os testes sejam executados com sucesso.
 
-Our first test should ensure that our form's ``__init__`` accepts an
-``entry`` keyword argument:
+Nosso primeiro teste deve garantir que nosso formulário ``__init__`` aceite um argumento ``entry``.
 
 .. code-block:: python
 
     def test_init(self):
         CommentForm(entry=self.entry)
 
-We want to link our comments to entries by allowing our form to accept
-an ``entry`` keyword argument.  Assuming our ``CommentForm`` has been
-written this is how we'd like to use it
-(**you don't need to type this code anywhere**):
+Qqueremos vincular nossos comentários às entradas, permitindo que nosso formulário aceite um argumento ``entry``.
+Assumindo que nosso ``CommentForm`` foi escrito dessa forma, é assim que gostariamos de usar:
+(**você não precisa digitar esse código em nenhuma parta**):
 
 .. code-block:: pycon
 
     >>> form = CommentForm(entry=entry)  # Without form data
     >>> form = CommentForm(request.POST, entry=entry)  # with form data
 
-Our next test should ensure that our form raises an exception if an
-``entry`` keyword argument isn't specified:
+Nosso próximo teste deve garantir que nosso formulário gere uma exceção
+se um argumento ``entry`` não for especificado:
 
 .. code-block:: python
 
@@ -74,7 +72,7 @@ Our next test should ensure that our form raises an exception if an
         with self.assertRaises(KeyError):
             CommentForm()
 
-Let's run our tests:
+Agora vamos rodar nossos testes
 
 .. code-block:: bash
 
@@ -84,10 +82,10 @@ Let's run our tests:
 
     ImportError: No module named 'blog.forms'
 
-We haven't created our forms file yet so our import is failing.  Let's
-create an empty ``blog/forms.py`` file.
+Ainda não criamos nosso arquivo de formulários, então nossa importação
+está falhando. Vamos criar um arquivo ``blog/forms.py``.
 
-Now we get:
+Agora nós temos:
 
 .. code-block:: bash
 
@@ -97,10 +95,10 @@ Now we get:
 
     ImportError: cannot import name 'CommentForm'
 
-We need to create our ``CommentForm`` model form in ``blog/forms.py``.
-This form will process the data sent from users trying to comment on a
-blog entry and ensure that it can be saved to our blog database. Let's
-start with something simple:
+Precisamos criar nosso model de formulário ``CommentForm`` em ``blog/forms.py``.
+Este formulário processará os dados enviados pelos usuários que tentam
+comentar em uma entrada de blog e garantirá que eles possam ser salvos em
+nosso banco de dados de blogs. Vamos começar com algo simples:
 
 .. code-block:: python
 
@@ -114,21 +112,20 @@ start with something simple:
             model = Comment
             fields = ('name', 'email', 'body')
 
-Here we have created a simple form associated with our Comment model and we
-have specified that the form handle only a subset of all of the fields on
-the comment.
+Aqui criamos um formulário simples associado ao nosso modelo de comentário
+e especificamos que o formulário manuseia apenas um subconjunto de todos os
+campos do comentário.
 
 .. IMPORTANT::
-    `Django forms`_ are a powerful way to handle HTML forms. They provide
-    a unified way to check submissions against validation rules and
-    in the case of ``ModelForm`` subclasses, share any of the associated
-    model's validators. In our example, this will ensure that the
-    Comment ``email`` is a valid email address.
+    Os `formulários Django`_ são uma maneira poderosa de lidar com formulários HTML.
+    Eles fornecem uma maneira unificada de verificar os envios em relação às regras
+    de validação e, no caso da subclasse ModelForm, compartilham qualquer um dos
+    validadores do modelo associado. Em nosso exemplo, isso garantirá que o comentário
+    email seja um endereço de e-mail válido.
 
-    .. _Django forms: https://docs.djangoproject.com/en/1.7/topics/forms/
+    .. _formulários Django: https://docs.djangoproject.com/en/4.2/topics/forms/
 
-Now our tests should fail because the ``entry`` keyword argument is not
-accepted nor required:
+Agora nossos testes devem falhar porque o argumento ``entry`` não é aceito nem obrigatório.
 
 .. code-block:: bash
 
@@ -136,20 +133,22 @@ accepted nor required:
 
 ::
 
+    Found 15 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     EF.............
     ======================================================================
-    ERROR: test_init (blog.tests.CommentFormTest)
+    ERROR: test_init (blog.tests.CommentFormTest.test_init)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
-    TypeError: __init__() got an unexpected keyword argument 'entry'
+        ...
+    TypeError: BaseModelForm.__init__() got an unexpected keyword argument 'entry'
 
     ======================================================================
-    FAIL: test_init_without_entry (blog.tests.CommentFormTest)
+    FAIL: test_init_without_entry (blog.tests.CommentFormTest.test_init_without_entry)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: KeyError not raised
 
     ----------------------------------------------------------------------
@@ -159,15 +158,14 @@ accepted nor required:
     Destroying test database for alias 'default'...
 
 
-Our two form tests fail as expected. Let's create a couple more tests
-for our form before we start fixing it. We should create at least two
-tests to make sure our form validation works:
+Nossos dois testes de formulário falham conforme o esperado. Vamos criar
+mais alguns testes para nosso formulário antes de começar a corrigi-lo.
+Devemos criar pelo menos dois testes para garantir que nossa validação
+de formulário funcione:
 
-1. Ensure that ``form.is_valid()`` is ``True`` for a form submission
-   with valid data
-2. Ensure that ``form.is_valid()`` is ``False`` for a form submission
-   with invalid data (preferably a separate test for each type of
-   error)
+1. Certifique-se de que ``form.is_valid()`` é ``True`` para um envio de formulário com dados válidos
+2. Certifique-se de que ``form.is_valid()`` é ``False`` para um envio de formulário com dados inválidos
+    (de preferência um teste separado para cada tipo de erro)
 
 This is a good start:
 
@@ -195,9 +193,9 @@ This is a good start:
             'body': ['required'],
         })
 
-It's usually better to test too much than to test too little.
+Geralmente é melhor testar demais do que testar de menos.
 
-Okay now let's finally write our form code.
+Agora vamos finalmente escrever nosso código de formulário.
 
 .. code-block:: python
 
@@ -222,12 +220,11 @@ Okay now let's finally write our form code.
             comment.save()
             return comment
 
-The ``CommentForm`` class is instantiated by passing the blog entry that the
-comment was written against as well as the HTTP POST data containing the
-remaining fields such as comment body and email. The ``save`` method is
-overridden here to set the associated blog entry before saving the comment.
+A classe ``CommentForm`` é instanciada passando a entrada do blog em que o comentário foi escrito,
+bem como os dados HTTP POST contendo os campos restantes, como corpo do comentário e e-mail.
+O método ``save`` é substituído aqui para definir a entrada de blog associada antes de salvar o comentário.
 
-Let's run our tests again to see whether they pass:
+Vamos rodar os testes novamente:
 
 .. code-block:: bash
 
@@ -235,23 +232,25 @@ Let's run our tests again to see whether they pass:
 
 ::
 
+    Found 17 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     F................
     ======================================================================
-    FAIL: test_blank_data (blog.tests.CommentFormTest)
+    FAIL: test_blank_data (blog.tests.CommentFormTest.test_blank_data)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: {'name': ['This field is required.'], 'email': ['Thi[55 chars]d.']} != {'name': ['required'], 'email': ['required'], 'body': ['required']}
 
     ----------------------------------------------------------------------
-    Ran 17 tests in 0.178s
+    Ran 17 tests in 0.112s
 
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-Our test for blank form data is failing because we aren't checking for
-the correct error strings. Let's fix that and make sure our tests pass:
+Nosso teste para dados de formulário em branco está falhando porque não estamos
+verificando as strings de erro corretas. Vamos corrigir isso e garantir que nossos testes passem:
 
 .. code-block:: bash
 
@@ -259,35 +258,36 @@ the correct error strings. Let's fix that and make sure our tests pass:
 
 ::
 
+    Found 17 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     .................
     ----------------------------------------------------------------------
-    Ran 17 tests in 0.179s
+    Ran 17 tests in 0.102s
 
     OK
     Destroying test database for alias 'default'...
 
 
-Displaying the comment form
----------------------------
+Exibindo o formulário de comentários
+------------------------------------
 
-We've made a form to create comments, but we still don't yet have a way
-for visitors to use the form.  The Django test client cannot test form
-submissions, but `WebTest`_ can.  We'll use `django-webtest`_ to handle
-testing the form submission.
+Fizemos um formulário para criar comentários, mas ainda não temos como os
+visitantes usarem o formulário. O cliente de teste Django não pode testar
+envios de formulários, mas o `WebTest`_ pode. Usaremos o `django-webtest`_ para
+testar o envio do formulário.
 
-Let's create a test to verify that a form is displayed on our blog
-entry detail page.
+Vamos criar um teste para verificar se um formulário é exibido na
+página de detalhes da entrada do blog.
 
-First we need to import the ``WebTest`` class (in ``blog/tests.py``):
+Primeiro precisamos importar a classe ``WebTest`` (em ``blog/tests.py``):
 
 .. code-block:: python
 
     from django_webtest import WebTest
 
-Now let's make our ``EntryViewTest`` class inherit from ``WebTest``.
-Change our ``EntryViewTest`` to inherit from ``WebTest`` instead of
-from ``TestCase``:
+Agora vamos fazer nossa classe ``EntryViewTest`` herdar de ``WebTest``.
+Altere nosso ``EntryViewTest`` para herdar de ``WebTest`` em vez de ``TestCase``:
 
 .. code-block:: python
 
@@ -295,16 +295,16 @@ from ``TestCase``:
 
 .. CAUTION::
 
-    **Do not** create a new ``EntryViewTest`` class.  We already have
-    an ``EntryViewTest`` class with tests in it. If we create a new
-    one, our old class will be overwritten and those tests won't run
-    anymore. All we want to do is change the parent class for our test
-    from ``TestCase`` to ``WebTest``.
+    **Não** crie uma nova classe ``EntryViewTest``. Já temos uma classe
+    ``EntryViewTest`` com testes nela. Se criarmos uma nova, nossa classe
+    antiga será substituída e esses testes não serão mais executados.
+    Tudo o que queremos fazer é alterar a classe pai de nosso teste de
+    ``TestCase`` para ``WebTest``.
 
-Our tests should continue to pass after this because ``WebTest`` is a
-subclass of the Django ``TestCase`` class that we were using before.
+Nossos testes devem continuar passando depois disso porque ``WebTest`` é
+uma subclasse da classe Django ``TestCase`` que estávamos usando antes.
 
-Now let's add a test to this class:
+Agora vamos adicionar um teste a esta classe:
 
 .. code-block:: python
 
@@ -312,9 +312,8 @@ Now let's add a test to this class:
             page = self.app.get(self.entry.get_absolute_url())
             self.assertEqual(len(page.forms), 1)
 
-Now let's update our ``EntryDetail`` view (in ``blog/views.py``) to
-inherit from ``CreateView`` so we can use it to handle submissions to a
-``CommentForm``:
+Agora vamos atualizar nossa view ``EntryDetail`` (em ``blog/views.py``) para herdar ``CreateView``,
+para que possamos usá-la para lidar com envios para um ``CommentForm``:
 
 .. code-block:: python
 
@@ -337,24 +336,26 @@ keyword argument to our form:
 .. code-block:: bash
 
     $ python manage.py test
+    Found 18 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ........EEEEEE....
     ======================================================================
-    ERROR: test_basic_view (blog.tests.EntryViewTest)
+    ERROR: test_basic_view (blog.tests.EntryViewTest.test_basic_view)
     ----------------------------------------------------------------------
-    ...
+        ...
     KeyError: 'entry'
 
     ----------------------------------------------------------------------
-    Ran 18 tests in 0.079s
+    Ran 18 tests in 0.323s
 
     FAILED (errors=6)
     Destroying test database for alias 'default'...
 
 
-Let's get the ``Entry`` from the database and pass it to our form. We
-need to add a ``get_form_kwargs`` method, and a ``get_context_data``
-method to our view:
+Vamos pegar o ``Entry`` do banco de dados e passá-lo para o nosso formulário.
+Precisamos adicionar um método ``get_form_kwargs`` e um método ``get_context_data``
+à nossa visão:
 
 .. code-block:: python
 
@@ -368,8 +369,8 @@ method to our view:
         d['entry'] = self.get_object()
         return d
 
-Now when we run our tests we'll see the following assertion error
-because we have not yet added the comment form to our blog detail page:
+Agora, quando executarmos nossos testes, veremos um erro de asserção porque
+ainda não adicionamos o formulário de comentário à página de detalhes do blog:
 
 .. code-block:: bash
 
@@ -377,33 +378,35 @@ because we have not yet added the comment form to our blog detail page:
 
 ::
 
+    Found 18 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     .............F....
     ======================================================================
-    FAIL: test_view_page (blog.tests.EntryViewTest)
+    FAIL: test_view_page (blog.tests.EntryViewTest.test_view_page)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: 0 != 1
 
     ----------------------------------------------------------------------
-    Ran 18 tests in 0.099s
+    Ran 18 tests in 0.120s
 
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-Let's add a comment form to the bottom of our ``content`` block in our
-blog entry detail template (``templates/blog/entry_detail.html``):
+Vamos adicionar um formulário de comentário ao final de nosso bloco ``content``
+em nosso template de detalhes de entrada de blog (``templates/blog/entry_detail.html``):
 
 .. code-block:: html
 
         <h5>Add a comment</h5>
         <form method="post">
             {{ form.as_table }}
-            <input type="submit" value="Create Comment">
+            <input class="button" type="submit" value="Create Comment">
         </form>
 
-Now our tests pass again:
+Agora nossos testes passam novamente.
 
 .. code-block:: bash
 
@@ -411,17 +414,19 @@ Now our tests pass again:
 
 ::
 
+    Found 18 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ..................
     ----------------------------------------------------------------------
-    Ran 18 tests in 0.106s
+    Ran 18 tests in 0.237s
 
     OK
     Destroying test database for alias 'default'...
 
-Let's test that our form actually submits. We should write two tests
-in our ``EntryViewTest``: one to test for errors, and one to test a
-successful form submission.
+Vamos testar se nosso formulário realmente submete. Devemos escrever dois
+testes em nosso ``EntryViewTest``: um para testar erros e outro para testar
+um envio de formulário bem-sucedido.
 
 .. code-block:: python
 
@@ -446,44 +451,46 @@ Now let's run our tests:
 
 ::
 
+    Found 20 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ............EE......
     ======================================================================
-    ERROR: test_form_error (blog.tests.EntryViewTest)
+    ERROR: test_form_error (blog.tests.EntryViewTest.test_form_error)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
-    webtest.app.AppError: Bad response: 403 FORBIDDEN (not 200 OK or 3xx redirect for http://localhost/1/)
-    b'\n<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta http-equiv="content-type" content="text/html; charset=utf-8">\n  <meta name="robots" content="NONE,NOARCHIVE">\n  <title>403 Forbidden</title>\n  <style type="text/css">\n    html * { padding:0; margin:0; }\n    body * { padding:10px 20px; }\n    body * * { padding:0; }\n    body { font:small sans-serif; background:#eee; }\n    body>div { border-bottom:1px solid #ddd; }\n    h1 { font-weight:normal; margin-bottom:.4em; }\n    h1 span { font-size:60%; color:#666; font-weight:normal; }\n    #info { background:#f6f6f6; }\n    #info ul { margin: 0.5em 4em; }\n    #info p, #summary p { padding-top:10px; }\n    #summary { background: #ffc; }\n    #explanation { background:#eee; border-bottom: 0px none; }\n  </style>\n</head>\n<body>\n<div id="summary">\n  <h1>Forbidden <span>(403)</span></h1>\n  <p>CSRF verification failed. Request aborted.</p>\n\n\n  <p>You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for security reasons, to ensure that your browser is not being hijacked by third parties.</p>\n  <p>If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for &#39;same-origin&#39; requests.</p>\n\n</div>\n\n<div id="explanation">\n  <p><small>More information is available with DEBUG=True.</small></p>\n</div>\n\n</body>\n</html>\n'
+        ...
+    webtest.app.AppError: Bad response: 403 Forbidden (not 200 OK or 3xx redirect for http://testserver/1/))
+        ...
 
     ======================================================================
-    ERROR: test_form_success (blog.tests.EntryViewTest)
+    ERROR: test_form_success (blog.tests.EntryViewTest.test_form_success)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
-    webtest.app.AppError: Bad response: 403 FORBIDDEN (not 200 OK or 3xx redirect for http://localhost/1/)
-    b'\n<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta http-equiv="content-type" content="text/html; charset=utf-8">\n  <meta name="robots" content="NONE,NOARCHIVE">\n  <title>403 Forbidden</title>\n  <style type="text/css">\n    html * { padding:0; margin:0; }\n    body * { padding:10px 20px; }\n    body * * { padding:0; }\n    body { font:small sans-serif; background:#eee; }\n    body>div { border-bottom:1px solid #ddd; }\n    h1 { font-weight:normal; margin-bottom:.4em; }\n    h1 span { font-size:60%; color:#666; font-weight:normal; }\n    #info { background:#f6f6f6; }\n    #info ul { margin: 0.5em 4em; }\n    #info p, #summary p { padding-top:10px; }\n    #summary { background: #ffc; }\n    #explanation { background:#eee; border-bottom: 0px none; }\n  </style>\n</head>\n<body>\n<div id="summary">\n  <h1>Forbidden <span>(403)</span></h1>\n  <p>CSRF verification failed. Request aborted.</p>\n\n\n  <p>You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for security reasons, to ensure that your browser is not being hijacked by third parties.</p>\n  <p>If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for &#39;same-origin&#39; requests.</p>\n\n</div>\n\n<div id="explanation">\n  <p><small>More information is available with DEBUG=True.</small></p>\n</div>\n\n</body>\n</html>\n'
+        ...
+    webtest.app.AppError: Bad response: 403 Forbidden (not 200 OK or 3xx redirect for http://testserver/1/))
+        ...
 
     ----------------------------------------------------------------------
-    Ran 20 tests in 0.110s
+    Ran 20 tests in 0.202s
 
     FAILED (errors=2)
     Destroying test database for alias 'default'...
 
-We got a HTTP 403 error because we forgot to add the cross-site request
-forgery token to our form. Every HTTP POST request made to our Django
-site needs to include a CSRF token. Let's change our form to add a CSRF
-token field to it:
+Recebemos um erro HTTP 403 porque esquecemos de adicionar o cross-site
+request forgery token entre sites ao nosso formulário. Cada solicitação
+HTTP POST feita em nosso site Django precisa incluir um token CSRF.
+Vamos alterar nosso formulário para adicionar um campo de token CSRF a ele:
 
 .. code-block:: html
 
         <form method="post">
             {% csrf_token %}
             {{ form.as_table }}
-            <input type="submit" value="Create Comment">
+            <input class="button" type="submit" value="Create Comment">
         </form>
 
-Now only one test fails:
+Agora apenas um teste falha:
 
 .. code-block:: bash
 
@@ -491,35 +498,37 @@ Now only one test fails:
 
 ::
 
+    Found 20 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     .............E......
     ======================================================================
-    ERROR: test_form_success (blog.tests.EntryViewTest)
+    ERROR: test_form_success (blog.tests.EntryViewTest.test_form_success)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AttributeError: 'Comment' object has no attribute 'get_absolute_url'
 
     During handling of the above exception, another exception occurred:
 
     Traceback (most recent call last):
-      ...
+        ...
     django.core.exceptions.ImproperlyConfigured: No URL to redirect to.  Either provide a url or define a get_absolute_url method on the Model.
 
     ----------------------------------------------------------------------
-    Ran 20 tests in 0.141s
+    Ran 20 tests in 0.225s
 
     FAILED (errors=1)
     Destroying test database for alias 'default'...
 
-Let's fix this by adding a ``get_success_url`` to our view, ``EntryDetail``, in ``blog/views.py``:
+Vamos corrigir isso adicionando um ``get_success_url`` à nossa view, ``EntryDetail``, em ``blog/views.py``:
 
 .. code-block:: python
 
     def get_success_url(self):
         return self.get_object().get_absolute_url()
 
-Now our tests pass again and we can submit comments as expected.
+Agora nossos testes passam novamente e podemos enviar comentários conforme o esperado.
 
-.. _WebTest: http://webtest.pythonpaste.org/en/latest/
-.. _django-webtest: https://bitbucket.org/kmike/django-webtest/
+.. _WebTest: https://pypi.org/project/WebTest/
+.. _django-webtest: https://pypi.org/project/django-webtest/
