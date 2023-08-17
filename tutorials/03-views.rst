@@ -1,17 +1,17 @@
 Views and Templates
 ===================
 
-Now we can create blog entries and see them in the admin interface, but no one else can see our blog entries yet.
+Agora podemos criar entradas de blog e vê-las na interface administrativa, mas ninguém mais pode ver nossas entradas de blog ainda.
 
 
-The homepage test
------------------
+O Teste da Página Inicial
+-------------------------
 
-Every site should have a homepage. Let's write a failing test for that.
+Todo site deve ter uma página inicial. Vamos escrever um teste com falha para isso.
 
-We can use the Django `test client`_ to create a test to make sure that our homepage returns an HTTP 200 status code (this is the standard response for a successful HTTP request).
+Podemos usar o `cliente de teste`_ Django para criar um teste para garantir que nossa página inicial retorne um código de status HTTP 200 (essa é a resposta padrão para uma solicitação HTTP bem-sucedida).
 
-Let's add the following to our ``blog/tests.py`` file:
+Vamos adicionar o seguinte ao nosso arquivo ``blog/tests.py``:
 
 .. code-block:: python
 
@@ -23,69 +23,71 @@ Let's add the following to our ``blog/tests.py`` file:
             self.assertEqual(response.status_code, 200)
 
 
-If we run our tests now this test should fail because we haven't created a homepage yet.
+Se executarmos nossos testes agora, esse teste deve falhar porque ainda não criamos uma página inicial.
+
 
 .. HINT::
-    There's lots more information on the `hypertext transfer protocol`_
-    (HTTP) and its various `status codes`_ on Wikipedia. Quick reference,
-    200 = OK; 404 = Not Found; 500 = Server Error
+
+    Há muito mais informações sobre o `protocolo de transferência de hipertexto`_ (HTTP)
+    e seus vários `códigos de status`_ na Wikipedia. Referência rápida, 200 = OK;
+    404 = Não encontrado; 500 = Erro do servidor
+
+Template base e arquivos estáticos
+----------------------------------
+
+Vamos começar com modelos básicos baseados na fundação zurb. Primeiro baixe e extraia os `arquivos da Fundação Zurb`_ (`direct link`_).
+
+Zurb Foundation é um framework CSS, HTML e JavaScript para construção do front-end de sites.
+Em vez de tentar projetar um site totalmente do zero, o Foundation oferece um bom ponto de
+partida para projetar e construir um site atraente e compatível com os padrões que funciona
+bem em dispositivos como laptops, tablets e telefones.
 
 
-Base template and static files
-------------------------------
+Arquivos estáticos
+~~~~~~~~~~~~~~~~~~
 
-Let's start with base templates based on zurb foundation.  First download and extract the `Zurb Foundation files`_ (`direct link`_).
+Crie um diretório ``static`` em nosso diretório top-level (aquele com o ``manage.py``). Copie o diretório ``css`` do arquivo da fundação Zurb para este novo diretório ``static``.
 
-Zurb Foundation is a CSS, HTML and JavaScript framework for building the
-front-end of web sites. Rather than attempt to design a web site entirely from
-scratch, Foundation gives a good starting place on which to design and build
-an attractive, standards-compliant web site that works well across devices
-such as laptops, tablets and phones.
-
-
-Static files
-~~~~~~~~~~~~
-
-Create a ``static`` directory in our top-level directory (the one with the ``manage.py`` file).  Copy the ``css`` directory from the foundation archive to this new ``static`` directory.
-
-Now let's add this new ``static`` directory definition to the bottom of our ``myblog/settings.py`` file:
+Agora vamos adicionar esta nova definição de diretório ``static`` ao nosso arquivo ``myblog/settings.py``:
 
 .. code-block:: python
 
-    STATICFILES_DIRS = (
-        os.path.join(BASE_DIR, 'static'),
-    )
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static',
+    ]
 
-For more details, see Django's documentation on `static files`_.
+Para mais detalhes, veja a documentação do Django sobre `arquivos estáticos`_.
 
 .. IMPORTANT::
-    This workshop is focused on Python and Django and so out of necessity we
-    are going to gloss over explaining HTML, CSS and JavaScript a little bit.
-    However, virtually all websites have a front-end built with these
-    fundamental building blocks of the open web.
+
+    Este workshop é focado em Python e Django e, por necessidade,
+    vamos explicar um pouco sobre HTML, CSS e JavaScript. No entanto,
+    praticamente todos os sites têm um front-end construído com esses
+    blocos de construção fundamentais da web aberta.
 
 
-Template files
-~~~~~~~~~~~~~~
+Arquivos de Template
+~~~~~~~~~~~~~~~~~~~~
 
-`Templates`_ are a way to dynamically generate a number of documents which are
-similar but have some data that is slightly different. In the blogging system
-we are building, we want all of our blog entries to look visually similar but
-the actual text of a given blog entry varies. We will have a single template
-for what all of our blog entries and the template will contain variables that
-get replaced when a blog entry is rendered. This reuse that Django helps with
-and the concept of keeping things in a single place is called the DRY
-principle for Don't Repeat Yourself.
+Os `templates`_ são uma maneira de gerar dinamicamente vários documentos semelhantes,
+mas com alguns dados ligeiramente diferentes. No sistema de blog que estamos construindo,
+queremos que todas as nossas entradas de blog sejam visualmente semelhantes,
+mas o texto real de uma determinada entrada de blog varia. Teremos um único template
+para todas as nossas entradas de blog e o template conterá variáveis que serão substituídas
+quando uma entrada de blog for renderizada. Essa reutilização com a qual o Django ajuda e
+o conceito de manter as coisas em um único lugar é chamada de princípio DRY para Don't Repeat Yourself.
 
-.. _Templates: https://docs.djangoproject.com/en/1.7/ref/templates/
 
-Create a ``templates`` directory in our top-level directory. Our directory structure should look like
+.. _templates: https://docs.djangoproject.com/en/4.2/topics/templates/#module-django.template
+
+Crie um diretório ``templates`` em nosso diretório top-level. Nossa estrutura de diretórios deve se paracer com isso:
 
 .. code-block:: bash
 
     ├── blog
     │   ├── admin.py
     │   ├── __init__.py
+    │   ├── apps.py
     │   ├── migrations
     │   │   ├── 0001_initial.py
     │   │   └── __init__.py
@@ -96,6 +98,7 @@ Create a ``templates`` directory in our top-level directory. Our directory struc
     ├── manage.py
     ├── myblog
     │   ├── __init__.py
+    │   ├── asgi.py
     │   ├── settings.py
     │   ├── urls.py
     │   └── wsgi.py
@@ -104,14 +107,14 @@ Create a ``templates`` directory in our top-level directory. Our directory struc
     │   └── css
     │       ├── foundation.css
     │       ├── foundation.min.css
-    │       └── normalize.css
+    │       └── app.css
     └── templates
 
-Create a basic HTML file like this and name it ``templates/index.html``:
+Crie um arquivo HTML básico como este e nomeie-o ``templates/index.html``:
 
 .. code-block:: html
 
-    {% load staticfiles %}
+    {% load static %}
     <!DOCTYPE html>
     <html>
     <head>
@@ -119,45 +122,55 @@ Create a basic HTML file like this and name it ``templates/index.html``:
         <link rel="stylesheet" href="{% static "css/foundation.css" %}">
     </head>
     <body>
-        <section class="row">
-            <header class="large-12 columns">
-                <h1>Welcome to My Blog</h1>
+        <section class="grid-x ">
+            <header class="cell">
+                <h1 class="text-center">Welcome to My Blog</h1>
                 <hr>
             </header>
         </section>
     </body>
     </html>
 
-Now inform Django of this new ``templates`` directory by adding this at the bottom of our ``myblog/settings.py`` file:
+Agora informe o Django sobre este novo diretório ``templates`` adicionando-o nosso arquivo ``myblog/settings.py``:
 
 .. code-block:: python
 
-    # Template files
-    # https://docs.djangoproject.com/en/1.7/topics/templates/
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [BASE_DIR / "templates"],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                ],
+            },
+        },
+    ]
 
-    TEMPLATE_DIRS = (
-        os.path.join(BASE_DIR, 'templates'),
-    )
 
-For just about everything there is to know about Django templates, read
-the `template documentation`_.
+Para quase tudo o que há para saber sobre os templates do Django, leia
+a `documentação sobre templates`_.
 
 .. TIP::
-    In our examples, the templates are going to be used to generate similar
-    HTML pages. However, Django's template system can be used to generate
-    any type of plain text document such as CSS, JavaScript, CSV or XML.
+    Em nossos exemplos, os templates serão usados para gerar
+    páginas HTML. No entanto, o sistema de templates do Django pode ser usado para gerar
+    qualquer tipo de documento de texto simples, como CSS, JavaScript, CSV ou XML.
 
 
 Views
 -----
 
-Now let's create a homepage using the ``index.html`` template we added.
+Agora vamos criar uma página inicial usando o template ``index.html`` que adicionamos.
 
-Let's start by creating a views file: ``myblog/views.py`` referencing the ``index.html`` template:
+Vamos começar criando um arquivo de views: ``myblog/views.py`` referenciando o template ``index.html``:
 
 .. code-block:: python
 
-    from django.views.generic.base import TemplateView
+    from django.views.generic import TemplateView
 
 
     class HomeView(TemplateView):
@@ -166,32 +179,26 @@ Let's start by creating a views file: ``myblog/views.py`` referencing the ``inde
 
 .. IMPORTANT::
 
-    We are making this views file in the ``myblog`` project directory (next to the ``myblog/urls.py`` file we are about to change).  We are **not** changing the ``blog/views.py`` file yet.  We will use that file later.
+    Estamos criando este arquivo views no diretório do projeto``myblog`` (ao lado do arquivo ``myblog/urls.py`` que estamos prestes a alterar). Ainda **não** estamos alterando o arquivo ``blog/views.py``. Usaremos esse arquivo mais tarde.
 
-Django will be able to find this template in the ``templates`` folder because of our ``TEMPLATE_DIRS`` setting.
-Now we need to route the homepage URL to the home view.  Our URL file ``myblog/urls.py`` should look something like this:
+O Django poderá encontrar este template na pasta ``templates`` devido à nossa configuração no ``TEMPLATE_DIRS``.
+Agora precisamos rotear o URL da página inicial para a visualização inicial. Nosso arquivo de URL ``myblog/urls.py`` deve se parecer com isto:
 
 .. code-block:: python
 
-    from django.conf.urls import include, url
     from django.contrib import admin
+    from django.urls import include, path
+    from myblog import views
 
-    from . import views
 
     urlpatterns = [
-        url(r'^$', views.HomeView.as_view(), name='home'),
-        url(r'^admin/', include(admin.site.urls)),
+        path('admin/', admin.site.urls),
+        path('', views.HomeView.as_view(), name='home'),
     ]
 
-
-Now let's visit http://localhost:8000/ in a web browser to check our
-work. (Restart your server with the command
-`python manage.py runserver`.) You should see a webpage that looks like
-this:
-
-.. image:: _static/03-01_myblog.png
-
-Great!  Now let's make sure our new test passes:
+Agora vamos visitar http://localhost:8000/ em um navegador da web para verificar nosso trabalho.
+(Reinicie seu servidor com o comando `python manage.py runserver`).
+Agora vamos garantir que nosso novo teste passe:
 
 .. code-block:: bash
 
@@ -199,40 +206,40 @@ Great!  Now let's make sure our new test passes:
 
 ::
 
+    Found 3 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ...
     ----------------------------------------------------------------------
-    Ran 3 tests in 0.032s
+    Ran 3 tests in 0.020s
 
     OK
     Destroying test database for alias 'default'...
 
 
 .. HINT::
-    From a code flow perspective, we now have a working example of how Django
-    creates dynamic web pages. When an HTTP request to a Django powered web
-    site is sent, the ``urls.py`` file contains a series of patterns for
-    matching the URL of that web request. The matching URL delegates the
-    request to a corresponding view (or to a another set of URLs which map
-    the request to a view). Finally, the view delegates the request to a
-    template for rendering the actual HTML.
+    De uma perspectiva de fluxo de código, agora temos um exemplo funcional de como o Django
+    cria páginas web dinâmicas. Quando uma requisição HTTP para um web site desenvolvido com
+    Django é enviada, o arquivo ``urls.py`` contém uma série de padrões para corresponder a URL
+    daquela requisição web. A URL correspondente delega a solicitação para uma visualização
+    correspondente (ou para outro conjunto de URLs que mapeiam a solicitação para uma visualização).
+    Por fim, a exibição delega a solicitação a um modelo para renderizar o HTML real.
 
-    In web site architecture, this separation of concerns is variously known
-    as a three-tier architecture or a model-view-controller architecture.
+    Na arquitetura de sites da Web, essa separação de preocupações é conhecida como arquitetura
+    de três camadas ou arquitetura de model-view-controller.
 
+Usando um Template Base
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Using a base template
-~~~~~~~~~~~~~~~~~~~~~
+Os templates no Django geralmente são construídos a partir de peças menores. Isso permite que você inclua coisas como um cabeçalho e rodapé consistentes em todas as suas páginas. A convenção é chamar um de seus modelos ``base.html`` e ter tudo herdado disso. Aqui estão mais informações sobre `herança de template com blocos`_ .
 
-Templates in Django are generally built up from smaller pieces. This lets you include things like a consistent header and footer on all your pages. Convention is to call one of your templates ``base.html`` and have everything inherit from that. Here is more information on `template inheritance with blocks`_.
+.. _herança de template com blocos: https://docs.djangoproject.com/en/4.2/ref/templates/language/#template-inheritance
 
-.. _template inheritance with blocks: https://docs.djangoproject.com/en/1.7/topics/templates/#template-inheritance
-
-We'll start with putting our header and a sidebar in ``templates/base.html``:
+Começaremos colocando nosso cabeçalho e uma barra lateral em ``templates/base.html``:
 
 .. code-block:: html
 
-    {% load staticfiles %}
+    {% load static %}
     <!DOCTYPE html>
     <html>
     <head>
@@ -240,20 +247,20 @@ We'll start with putting our header and a sidebar in ``templates/base.html``:
         <link rel="stylesheet" href="{% static "css/foundation.css" %}">
     </head>
     <body>
-        <section class="row">
-            <header class="large-12 columns">
-                <h1>Welcome to My Blog</h1>
+        <section class="grid-x ">
+            <header class="cell">
+                <h1 class="text-center">Welcome to My Blog</h1>
                 <hr>
             </header>
         </section>
 
-        <section class="row">
+        <section class="grid-x grid-padding-x align-center">
 
-            <div class="large-8 columns">
+            <div class="cell large-8">
                 {% block content %}{% endblock %}
             </div>
 
-            <div class="large-4 columns">
+            <div class="cell large-4">
                 <h3>About Me</h3>
                 <p>I am a Python developer and I like Django.</p>
             </div>
@@ -265,16 +272,14 @@ We'll start with putting our header and a sidebar in ``templates/base.html``:
 
 .. NOTE::
 
-    We will not explain the CSS classes we used above (e.g. ``large-8``, ``column``, ``row``).  More information on these classes can be found in the Zurb Foundation `grid documentation`_.
+    Não explicaremos as classes CSS que usamos acima (por exemplo, ``large-8``, ``column``, ``row``). Mais informações sobre essas classes podem ser encontradas na documentação de `grid da Fundação Zurb`_.
 
-There's a lot of duplicate code between our ``templates/base.html`` and
-``templates/index.html``. Django's templates provide a way of having templates
-inherit the structure of other templates. This allows a template to define
-only a few elements, but retain the overall structure of its parent template.
+Há muito código duplicado entre nosso ``templates/base.html`` e ``templates/index.html``.
+Os templates do Django fornecem uma forma de fazer com que os templates herdem a estrutura de outros templates.
+Isso permite que um modelo defina apenas alguns elementos, mas mantenha a estrutura geral de seu modelo pai.
 
-If we update our ``index.html`` template to extend ``base.html`` we can see
-this in action.  Delete everything in ``templates/index.html`` and replace it
-with the following:
+Se atualizarmos nosso template ``index.html`` para estender ``base.html`` poderemos ver isso em ação.
+Exclua tudo ``templates/index.html`` e substitua pelo seguinte:
 
 .. code-block:: html
 
@@ -284,19 +289,19 @@ with the following:
     Page body goes here.
     {% endblock content %}
 
-Now our ``templates/index.html`` just overrides the ``content`` block in
-``templates/base.html``. For more details on this powerful Django feature,
-you can read the documentation on `template inheritance`_.
 
-.. _template inheritance: https://docs.djangoproject.com/en/1.7/topics/templates/#template-inheritance
+Agora, ``templates/index.html`` substitui o bloco ``content`` em ``templates/base.html``.
+Para mais detalhes sobre este poderoso recurso do Django, você pode ler a documentação sobre `herança de template`_.
+
+.. _herança de template: https://docs.djangoproject.com/en/4.2/ref/templates/language/#template-inheritance
 
 
 ListViews
 ---------
 
-We put a hard-coded title and article in our filler view. These entry information should come from our models and database instead. Let's write a test for that.
+Colocamos um título e um artigo hard-codados em nossa visualização de preenchimento. Essas informações de entrada devem vir de nossos models e banco de dados. Vamos escrever um teste para isso.
 
-The Django ``test client`` can be used for a simple test of whether text shows up on a page.  Let's add the following to our ``blog/tests.py`` file:
+O ``cliente de teste`` do Django pode ser usado para um teste simples de se o texto aparece em uma página. Vamos adicionar o seguinte ao nosso arquivo ``blog/tests.py``:
 
 .. code-block:: python
 
@@ -323,37 +328,39 @@ The Django ``test client`` can be used for a simple test of whether text shows u
             self.assertContains(response, '1-body')
             self.assertContains(response, '2-title')
 
-which should fail like this
+O qual tem que falhar assim:
 
 .. code-block:: bash
 
+    Found 5 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ..FF.
     ======================================================================
-    FAIL: test_one_entry (blog.tests.HomePageTests)
+    FAIL: test_one_entry (blog.tests.HomePageTests.test_one_entry)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: False is not true : Couldn't find '1-title' in response
 
     ======================================================================
-    FAIL: test_two_entries (blog.tests.HomePageTests)
+    FAIL: test_two_entries (blog.tests.HomePageTests.test_two_entries)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: False is not true : Couldn't find '1-title' in response
 
     ----------------------------------------------------------------------
-    Ran 5 tests in 0.052s
+    Ran 5 tests in 0.036s
 
     FAILED (failures=2)
     Destroying test database for alias 'default'...
 
 
-Updating our views
-~~~~~~~~~~~~~~~~~~
+Atualizando nossas Views
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-One easy way to get all our entries objects to list is to just use a ``ListView``. That changes our ``HomeView`` only slightly.
+Uma maneira fácil de obter todos os nossos objetos de entrada para listas é apenas usar um ``ListView``. Isso muda o nosso ``HomeView`` um pouco.
 
 .. code-block:: python
 
@@ -369,11 +376,11 @@ One easy way to get all our entries objects to list is to just use a ``ListView`
 
 .. IMPORTANT::
 
-    Make sure you update your ``HomeView`` to inherit from ``ListView``. Remember this is still ``myblog/views.py``.
+    Certifique-se de atualizar seu ``HomeView`` para herdar de ``ListView``. Lembre-se de que ainda é em ``myblog/views.py``.
 
-That small change will provide a ``entry_list`` object to our template ``index.html`` which we can then loop over. For some quick documentation on all the Class Based Views in django, take a look at `Classy Class Based Views`_
+Essa pequena alteração fornecerá um objeto ``entry_list`` ao nosso model ``index.html``, no qual podemos fazer um loop. Para alguma documentação rápida sobre todas as visões baseadas em classes no django, dê uma olhada em `Classy Class Based Views`_.
 
-The last change needed then is just to update our homepage template to add the blog entries.  Let's replace our ``templates/index.html`` file with the following:
+A última alteração necessária é apenas atualizar nosso modelo de página inicial para adicionar as entradas do blog. Vamos substituir nosso arquivo ``templates/index.html`` pelo seguinte:
 
 .. code-block:: html
 
@@ -381,38 +388,38 @@ The last change needed then is just to update our homepage template to add the b
 
     {% block content %}
         {% for entry in entry_list %}
-            <article>
+            <article class="card text-center" >
+                <div class="card-divider" style="justify-content: center;">
+                    <h2 ><a href="{{ entry.get_absolute_url }}" >{{ entry.title }}</a></h2>
+                </div>
+                <div class="card-section">
+                    <p class="subheader">
+                        <time>{{ entry.modified_at|date }}</time>
+                    </p>
 
-                <h2><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></h2>
-
-                <p class="subheader">
-                    <time>{{ entry.modified_at|date }}</time>
-                </p>
-
-                <p></p>
-
-                {{ entry.body|linebreaks }}
-
+                    <p>
+                        {{ entry.body|linebreaks }}
+                    </p>
+                </div>
             </article>
         {% endfor %}
     {% endblock content %}
 
 .. NOTE::
 
-    The ``entry.get_absolute_url`` reference doesn't do anything yet.  Later we will add a ``get_absolute_url`` method to the entry model which will make these links work.
+    A referência ``entry.get_absolute_url`` ainda não faz nada. Posteriormente, adicionaremos um método ``get_absolute_url`` ao modelo de entrada que fará com que esses links funcionem.
 
 .. TIP::
 
-    Notice that we didn't specify the name ``entry_list`` in our code.  Django's class-based generic views often add automatically-named variables to your template context based on your model names.   In this particular case the context object name was automatically defined by the `get_context_object_name`_ method in the ``ListView``.  Instead of referencing ``entry_list`` in our template we could have also referenced the template context variable ``object_list`` instead.
+    Observe que não especificamos o nome ``entry_list`` em nosso código. As visualizações genéricas baseadas em classe do Django geralmente adicionam variáveis nomeadas automaticamente ao seu contexto de template com base nos nomes de seu modelo. Nesse caso específico, o nome do objeto de contexto foi definido automaticamente pelo método `get_context_object_name`_ no ``ListView``. Em vez de referenciar ``entry_list`` em nosso template, poderíamos também ter referenciado a variável de contexto do modelo ``object_list``.
 
-Running the tests here we see that all the tests pass!
+Fazendo os testes aqui vemos que todos os testes passam!
 
 .. NOTE::
 
-    Read the Django `built-in template tags and filters`_ documentation for more details on the `linebreaks`_ and `date`_ template filters.
+    Leia a documentação de `filtros e tags de modelo integrados`_ do Django para obter mais detalhes sobre quebras de linha e filtros de modelo de data.
 
-And now, if we add some entries in our admin, they should show up on the homepage. What happens if there are no entries?
-We should add a test for that
+E agora, se adicionarmos algumas entradas em nosso admin, elas devem aparecer na página inicial. O que acontece se não houver entradas? Devemos adicionar um teste para isso:
 
 .. code-block:: python
 
@@ -420,62 +427,90 @@ We should add a test for that
         response = self.client.get('/')
         self.assertContains(response, 'No blog entries yet.')
 
-This test gives us the expected failure
+Este teste nos dá a falha esperada
 
 .. code-block:: bash
 
+    Found 6 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ..F...
     ======================================================================
-    FAIL: test_no_entries (blog.tests.HomePageTests)
+    FAIL: test_no_entries (blog.tests.HomePageTests.test_no_entries)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: False is not true : Couldn't find 'No blog entries yet.' in response
 
     ----------------------------------------------------------------------
-    Ran 6 tests in 0.044s
+    Ran 6 tests in 0.060s
 
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-The easiest way to implement this feature is to use the `empty`_ clause. See if you can add this in yourself to make the test pass.
-
-.. HINT::
-    Remember that the phrase in the empty clause must contain the same phrase we check for in our test ("No blog entries yet.").
-
-What about viewing an individual blog entry?
-
-Blog Entries, URLs, and Views
------------------------------
-
-For simplicity, let's agree on a project guideline to form our urls to look like ``http://myblog.com/ID/`` where ID is the database ID of the specific blog entry that we want to display. In this section, we will be creating a `blog entry detail` page and using our project's url guideline.
-
-Before we create this page, let's move the template content that displays our blog entries on our homepage (``templates/index.html``) into a new, separate template file so we can reuse the blog entry display logic on our `blog entry details` page.
-
-Let's make a template file called ``templates/_entry.html`` and put the following in it:
+A maneira mais fácil de implementar esse recurso é usar a cláusula `empty`_:
 
 .. code-block:: html
 
-    <article>
+    {% extends "base.html" %}
 
-        <h2><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></h2>
+    {% block content %}
+        {% for entry in entry_list %}
+            <article class="card text-center" >
+                <div class="card-divider" style="justify-content: center;">
+                    <h2 ><a href="{{ entry.get_absolute_url }}" >{{ entry.title }}</a></h2>
+                </div>
+                <div class="card-section">
+                    <p class="subheader">
+                        <time>{{ entry.modified_at|date }}</time>
+                    </p>
 
-        <p class="subheader">
-            <time>{{ entry.modified_at|date }}</time>
-        </p>
+                    <p>
+                        {{ entry.body|linebreaks }}
+                    </p>
+                </div>
+            </article>
+            {% empty %}
+                <p>No blog entries yet.</p>
+        {% endfor %}
+    {% endblock content %}
 
-        <p></p>
+.. HINT::
+    Lembre-se de que a frase na cláusula empty deve conter a mesma frase que verificamos em nosso teste ("No blog entries yet.").
 
-        {{ entry.body|linebreaks }}
+Que tal ver uma entrada individual no blog?
 
+Entradas no blog, URLs e Views
+------------------------------
+
+Para simplificar, vamos concordar com uma diretriz de projeto para formar nossos urls para parecer ``http://myblog.com/ID/`` onde ID é o ID do banco de dados da entrada de blog específica que queremos exibir. Nesta seção, criaremos uma página de `detalhes de entrada de blog` e usaremos a diretriz de URL do nosso projeto.
+
+Antes de criarmos esta página, vamos mover o conteúdo do template que exibe nossas entradas de blog em nossa página inicial (``templates/index.html``) para um novo arquivo de template separado para que possamos reutilizar a lógica de exibição de entrada de blog em nossa página de `detalhes de entrada de blog`.
+
+Vamos criar um arquivo de template chamado ``templates/_entry.html`` e colocar o seguinte nele:
+
+.. code-block:: html
+
+    <article class="card text-center" >
+        <div class="card-divider" style="justify-content: center;">
+            <h2 ><a href="{{ entry.get_absolute_url }}" >{{ entry.title }}</a></h2>
+        </div>
+        <div class="card-section">
+            <p class="subheader">
+                <time>{{ entry.modified_at|date }}</time>
+            </p>
+
+            <p>
+                {{ entry.body|linebreaks }}
+            </p>
+        </div>
     </article>
 
 .. TIP::
 
-    The filename of our includable template starts with ``_`` by convention.  This naming convention is recommended by Harris Lapiroff in `An Architecture for Django Templates`_.
+    O nome do arquivo do nosso modelo inclusivel começa com ``_`` por convenção. Essa convenção de nomenclatura é recomendada por Harris Lapiroff em An Architecture for Django Templates.
 
-Now let's change our homepage template (``templates/index.html``) to include the template file we just made:
+Agora vamos alterar nosso template de página inicial (``templates/index.html``) para incluir o arquivo de template que acabamos de criar:
 
 .. code-block:: html
 
@@ -491,9 +526,9 @@ Now let's change our homepage template (``templates/index.html``) to include the
 
 .. TIP::
 
-    We use the ``with entry=entry only`` convention in our ``include`` tag for better encapsulation (as mentioned in `An Architecture for Django Templates`_).  Check the Django documentation more information on the `include tag`_.
+    Usamos a convenção ``with entry=entry only`` em nossa tag ``include`` para um melhor encapsulamento. Verifique a documentação do Django para mais informações sobre a `tag include`_.
 
-Great job. Now, let's write a test our new blog entry pages:
+Agora, vamos escrever um teste para nossas novas páginas de entrada de blog:
 
 .. code-block:: python
 
@@ -508,46 +543,45 @@ Great job. Now, let's write a test our new blog entry pages:
             response = self.client.get(self.entry.get_absolute_url())
             self.assertEqual(response.status_code, 200)
 
-This test fails because we didn't define the ``get_absolute_url`` method for our ``Entry`` model (`Django Model Instance Documentation`_). We will need an absolute URL to correspond to an individual blog entry.
+Este teste falha porque não definimos o método ``get_absolute_url`` para nosso modelo ``Entry`` (`Django Model Instance Documentation`_). Vamos precisar de um URL absoluto para corresponder a uma entrada de blog individual.
 
-We need to create a URL and a view for blog entry pages now. We'll make a new ``blog/urls.py`` file and reference it in the ``myblog/urls.py`` file.
+Precisamos criar um URL e uma view para as páginas de entrada do blog. Faremos um novo arquivo ``blog/urls.py`` e o referenciaremos no arquivo``myblog/urls.py``.
 
-Our ``blog/urls.py`` file is the very short:
+Nosso aquivo ``blog/urls.py`` é bem breve:
 
 .. code-block:: python
 
-    from django.conf.urls import url
+    from django.urls import path
 
     from . import views
 
     urlpatterns = [
-        url(r'^(?P<pk>\d+)/$', views.EntryDetail.as_view(), name='entry_detail'),
+    path('<int:pk>/)', views.EntryDetail.as_view(), name='entry_detail'),
     ]
 
 
-The urlconf in ``myblog/urls.py`` needs to reference ``blog.urls``:
+
+O urlconf em ``myblog/urls.py`` precisa referenciar ``blog.urls``:
 
 .. code-block:: python
 
-    from django.conf.urls import include, url
     from django.contrib import admin
-
+    from django.urls import include, path
+    from myblog import views
     import blog.urls
-    from . import views
+
 
     urlpatterns = [
-        url(r'^$', views.HomeView.as_view(), name='home'),
-        url(r'^', include(blog.urls)),
-        url(r'^admin/', include(admin.site.urls)),
+        path('admin/', admin.site.urls),
+        path('', views.HomeView.as_view(), name='home'),
+        path('', include(blog.urls)),
     ]
 
-
-Remember, we are working on creating a way to see individual entries. 
-Now we need to define an ``EntryDetail`` view class in our ``blog/views.py``
-file. To implement our blog entry page we'll use another class-based
-generic view: the `DetailView`_. The ``DetailView`` is a view for
-displaying the details of an instance of a model and rendering it to a
-template. Let's replace the contents of ``blog/views.py`` file with the following:
+Lembre-se, estamos trabalhando para criar uma maneira de ver entradas individuais.
+Agora precisamos definir uma classe de exibição ``EntryDetail`` em nosso arquivo ``blog/views.py``.
+Para implementar nossa página de entrada de blog, usaremos outra visualização genérica baseada em classe:
+a `DetailView`_. A ``DetailView`` é uma visualização para exibir os detalhes de uma instância de um modelo
+e renderizá-la em um template. Vamos substituir o conteúdo do arquivo  ``blog/views.py`` pelo seguinte:
 
 .. code-block:: python
 
@@ -559,6 +593,7 @@ template. Let's replace the contents of ``blog/views.py`` file with the followin
         model = Entry
 
 
+Vejamos como criar a função ``get_absolute_url()`` que deve retornar o URL individual e absoluto do detalhe da entrada para cada entrada do blog. Devemos criar um teste primeiro. Vamos adicionar o seguinte teste à nossa classe ``EntryModelTest``:
 Let's look at how to create the ``get_absolute_url()`` function which should return the individual, absolute entry detail URL for each blog entry. We should create a test first.  Let's add the following test to our ``EntryModelTest`` class:
 
 .. code-block:: python
@@ -568,7 +603,7 @@ Let's look at how to create the ``get_absolute_url()`` function which should ret
         entry = Entry.objects.create(title="My entry title", author=user)
         self.assertIsNotNone(entry.get_absolute_url())
 
-Now we need to implement our ``get_absolute_url`` method in our ``Entry`` class (found in ``blog/models.py``):
+Agora precisamos implementar nosso método ``get_absolute_url`` em nossa classe ``Entry`` (encontrada em ``blog/models.py``):
 
 .. code-block:: python
 
@@ -580,15 +615,12 @@ Now we need to implement our ``get_absolute_url`` method in our ``Entry`` class 
         return reverse('entry_detail', kwargs={'pk': self.pk})
 
 .. TIP::
-    For further reading about the utility function, reverse, see the
-    Django documentation on `django.core.urlresolvers.reverse`_.
+    Para ler mais sobre a função utilitária, reverse, veja a documentação do Django
+    em `django.core.urlresolvers.reverse`_.
 
-    .. _django.core.urlresolvers.reverse: https://docs.djangoproject.com/en/1.7/ref/urlresolvers/
+    .. _django.core.urlresolvers.reverse: https://docs.djangoproject.com/en/4.2/ref/urlresolvers/#reverse
 
-
-Now, run the tests again. We should have passing tests since we just defined a ``get_absolute_url`` method.
-
-Let's make the blog entry detail view page actually display a blog entry.  First we'll write some tests in our ``EntryViewTest`` class:
+Vamos fazer com que a página de exibição de detalhes da entrada do blog realmente exiba uma entrada do blog. Primeiro vamos escrever alguns testes em nossa classe ``EntryViewTest``:
 
 .. code-block:: python
 
@@ -601,7 +633,7 @@ Let's make the blog entry detail view page actually display a blog entry.  First
         self.assertContains(response, self.entry.body)
 
 
-Now we'll see some ``TemplateDoesNotExist`` errors when running our tests again:
+Agora veremos alguns erros de ``TemplateDoesNotExist`` ao executar nossos testes.
 
 .. code-block:: bash
 
@@ -609,38 +641,40 @@ Now we'll see some ``TemplateDoesNotExist`` errors when running our tests again:
 
 ::
 
+    Found 10 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ...EEE....
     ======================================================================
-    ERROR: test_basic_view (blog.tests.EntryViewTest)
+    ERROR: test_basic_view (blog.tests.EntryViewTest.test_basic_view)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
-    django.template.base.TemplateDoesNotExist: blog/entry_detail.html
+        ...
+    django.template.exceptions.TemplateDoesNotExist: blog/entry_detail.html
 
     ======================================================================
-    ERROR: test_body_in_entry (blog.tests.EntryViewTest)
+    ERROR: test_body_in_entry (blog.tests.EntryViewTest.test_body_in_entry)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
-    django.template.base.TemplateDoesNotExist: blog/entry_detail.html
+        ...
+    django.template.exceptions.TemplateDoesNotExist: blog/entry_detail.html
 
     ======================================================================
-    ERROR: test_title_in_entry (blog.tests.EntryViewTest)
+    ERROR: test_title_in_entry (blog.tests.EntryViewTest.test_title_in_entry)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
-    django.template.base.TemplateDoesNotExist: blog/entry_detail.html
+        ...
+    django.template.exceptions.TemplateDoesNotExist: blog/entry_detail.html
 
     ----------------------------------------------------------------------
-    Ran 10 tests in 0.136s
+    Ran 10 tests in 0.158s
 
     FAILED (errors=3)
     Destroying test database for alias 'default'...
 
-These errors are telling us that we're referencing a ``blog/entry_detail.html`` template but we haven't created that file yet.  
+Esses erros estão nos dizendo que estamos referenciando um template``blog/entry_detail.html``, mas ainda não criamos esse arquivo.
 
-We're very close to being able to see individual blog entry details. Let's do it. First, create a ``templates/blog/entry_detail.html`` as our blog entry detail view template. The ``DetailView`` will use an ``entry`` context variable to reference our ``Entry`` model instance.  Our new blog entry detail view template should look similar to this:
+Estamos muito perto de poder ver os detalhes individuais da entrada do blog. Vamos fazê-lo. Primeiro, crie um ``templates/blog/entry_detail.html`` como nosso template de exibição de detalhes de entrada de blog. O ``DetailView`` usará uma variável de contexto ``entry`` para referenciar nossa instância de modelo ``Entry``. Nosso novo modelo de exibição de detalhes de entrada de blog deve ser semelhante a este:
 
 .. code-block:: html
 
@@ -650,7 +684,7 @@ We're very close to being able to see individual blog entry details. Let's do it
         {% include "_entry.html" with entry=entry only %}
     {% endblock %}
 
-Now our tests should pass again:
+Agora nossos testes devem passar:
 
 .. code-block:: bash
 
@@ -658,29 +692,29 @@ Now our tests should pass again:
 
 ::
 
+    Found 10 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     ..........
     ----------------------------------------------------------------------
-    Ran 10 tests in 0.139s
+    Ran 10 tests in 0.083s
 
     OK
     Destroying test database for alias 'default'...
 
-.. _test client: https://docs.djangoproject.com/en/1.7/topics/testing/tools/#module-django.test.client
-.. _zurb foundation files: http://foundation.zurb.com/
-.. _grid documentation: http://foundation.zurb.com/docs/components/grid.html
-.. _direct link: http://foundation.zurb.com/cdn/releases/foundation-5.4.6.zip
-.. _static files: https://docs.djangoproject.com/en/1.7/ref/contrib/staticfiles/
-.. _hypertext transfer protocol: http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
-.. _status codes: http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-.. _template documentation: https://docs.djangoproject.com/en/1.7/topics/templates/
-.. _built-in template tags and filters: https://docs.djangoproject.com/en/1.7/ref/templates/builtins/
-.. _get_context_object_name: https://docs.djangoproject.com/en/1.7/ref/class-based-views/mixins-multiple-object/#django.views.generic.list.MultipleObjectMixin.get_context_object_name
-.. _date: https://docs.djangoproject.com/en/1.7/ref/templates/builtins/#date
-.. _linebreaks: https://docs.djangoproject.com/en/1.7/ref/templates/builtins/#linebreaks
+
+.. _cliente de teste: https://docs.djangoproject.com/en/4.2/topics/testing/tools/#the-test-client
+.. _arquivos da Fundação Zurb: https://get.foundation/
+.. _grid da Fundação Zurb: https://get.foundation/sites/docs/xy-grid.html
+.. _direct link: https://static.foundationcss.com/sites-css-latest
+.. _arquivos estáticos: https://docs.djangoproject.com/pt-br/4.2/howto/static-files/
+.. _protocolo de transferência de hipertexto: http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
+.. _códigos de status: http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+.. _documentação sobre templates: https://docs.djangoproject.com/en/4.2/topics/templates/
+.. _filtros e tags de modelo integrados: https://docs.djangoproject.com/en/4.2/ref/templates/builtins/
+.. _get_context_object_name: https://docs.djangoproject.com/en/4.2/ref/class-based-views/mixins-single-object/#django.views.generic.detail.SingleObjectMixin.get_context_object_name
 .. _Classy Class Based Views: http://ccbv.co.uk
-.. _Django Model Instance Documentation: https://docs.djangoproject.com/en/1.7/ref/models/instances/#get-absolute-url
+.. _Django Model Instance Documentation: https://docs.djangoproject.com/en/4.2/ref/models/instances/
 .. _DetailView: http://ccbv.co.uk/projects/Django/1.7/django.views.generic.detail/DetailView/
-.. _an architecture for django templates: https://oncampus.oberlin.edu/webteam/2012/09/architecture-django-templates
-.. _include tag: https://docs.djangoproject.com/en/1.7/ref/templates/builtins/#include
+.. _tag include: https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#std-templatetag-include
 .. _empty: https://docs.djangoproject.com/en/1.7/ref/templates/builtins/#for-empty
