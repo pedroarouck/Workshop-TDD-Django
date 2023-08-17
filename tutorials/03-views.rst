@@ -556,7 +556,7 @@ Nosso aquivo ``blog/urls.py`` é bem breve:
     from . import views
 
     urlpatterns = [
-    path('<int:pk>/)', views.EntryDetail.as_view(), name='entry_detail'),
+    path('<int:pk>/', views.EntryDetail.as_view(), name='entry_detail'),
     ]
 
 
