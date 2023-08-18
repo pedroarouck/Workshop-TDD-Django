@@ -1,28 +1,25 @@
-Adding Gravatars
-================
+Adicionando Gravatars
+=====================
 
-Wouldn't it be cool if we could show user avatars next to comments?
-Let's use the free `Gravatar`_ service for this. As usual, we'll start
-with a test.
+Não seria legal se pudéssemos mostrar os avatares dos usuários ao lado dos comentários?
+Vamos usar o serviço gratuito `Gravatar`_ para isso. Como de costume, vamos começar com um teste.
 
-According to the `Gravatar documentation`_ a Gravatar profile image can
-be requested like this:
+De acordo com a `documentação do Gravatar`_, uma imagem de perfil do Gravatar pode ser solicitada assim:
 
     http://www.gravatar.com/avatar/HASH
 
-Where ``HASH`` is an MD5 hash of the user's email address.  We can use
-the `hashlib`_ package in the Python standard library to generate an
-MD5 hash.
+Onde ``HASH`` é um hash MD5 do endereço de e-mail do usuário. Podemos usar o pacote
+`hashlib`_ na biblioteca padrão do Python para gerar um hash MD5.
 
 .. TIP::
 
-    There are lots of options for displaying gravatars such as setting
-    the display size for the image and having a default image if there
-    is no Gravatar for a specific email.
+    Existem muitas opções para exibir gravatars, como definir o tamanho
+    de exibição da imagem e ter uma imagem padrão se não houver um Gravatar
+    para um e-mail específico.
 
-First, let's write a test for Gravatars. This test will be added to our
-already existing test ``CommentModelTest`` since the plan is to add a
-method to the ``Comment`` model to get the Gravatar URL.
+Primeiro, vamos escrever um teste para Gravatars. Este teste será adicionado
+ao nosso teste  ``CommentModelTest`` já existente, pois o plano é adicionar um
+método ao modelo ``Comment`` para obter a URL do Gravatar.
 
 .. code-block:: python
 
@@ -33,37 +30,38 @@ method to the ``Comment`` model to get the Gravatar URL.
 
 .. NOTE::
 
-    We didn't calculate that MD5 hashes in our head. You can use
-    Python's `hashlib`_ library to calculate the hash or just type
-    `md5 email@example.com`_ into Duck Duck Go.
+    Não calculamos esses hashes MD5 de cabeça. Você pode usar a
+    biblioteca `hashlib`_ do Python para calcular o hash.
 
-When running our tests now, we'll see an error since we have not yet
-written a ``gravatar_url()`` method to the ``Comment`` model:
+Ao executar nossos testes agora, veremos um erro, pois ainda não escrevemos um
+método ``gravatar_url()`` para o modelo ``Comment``:
 
 .. code-block:: bash
 
     $ python manage.py test blog
+    Found 27 test(s).
     Creating test database for alias 'default'...
-    ....E.....................
+    System check identified no issues (0 silenced).
+    ....E......................
     ======================================================================
-    ERROR: test_gravatar_url (blog.tests.CommentModelTest)
+    ERROR: test_gravatar_url (blog.tests.CommentModelTest.test_gravatar_url)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AttributeError: 'Comment' object has no attribute 'gravatar_url'
 
     ----------------------------------------------------------------------
-    Ran 26 tests in 0.175s
+    Ran 27 tests in 0.466s
 
     FAILED (errors=1)
     Destroying test database for alias 'default'...
 
 
-Adding comment gravatars
-------------------------
+Adicionando gravatars de comentário
+-----------------------------------
 
-Let's add a ``gravatar_url()`` method to ``Comment`` so our tests pass.
-This involves editing ``models.py``:
+Vamos adicionar um método ``gravatar_url()`` em ``Comment`` para que nossos testes passem.
+Isso envolve a edição ``models.py``:
 
 .. code-block:: python
 
@@ -76,34 +74,24 @@ This involves editing ``models.py``:
 
 .. NOTE::
 
-    Remember to import the ``hashlib`` library at the top of our
-    ``models.py`` file.
+    Lembre-se de importar a biblioteca ``hashlib`` no topo do nosso arquivo ``models.py``.
 
 .. TIP::
 
-    If you've never used ``hashlib`` before, this may look a little
-    daunting. MD5_ is a cryptographic hash function that takes a string
-    of any size and creates a 128-bit binary string. When rendered as
-    hexidecimal, it is a 32 character string.
+    Se você nunca usou ``hashlib`` antes, isso pode parecer um pouco assustador.
+    MD5_ é uma função hash criptográfica que pega uma string de qualquer tamanho
+    e cria uma string binária de 128 bits. Quando processado como hexadecimal,
+    é uma string de 32 caracteres..
 
-    .. Technically we will get a UnicodeDecodeError if the email
-       contains non-ascii characters but Django's EmailValidator
-       doesn't support that anyway.
-
-    ``self.email`` is always converted to unicode because it is
-    possible that it is ``None`` since it is not required. If you're
-    feeling up to it, write a test for this case and see what happens.
-
-If you run the tests at this point, you should see that our test case passes.
+Se você executar os testes neste ponto, verá que nosso caso de teste passou.
 
 
-Displaying gravatars on the site
---------------------------------
+Exibindo gravatars no site
+--------------------------
 
-Now, let's display the Gravatars with the comments.
+Agora, vamos exibir os Gravatars com os comentários.
 
-In our ``content`` block in ``templates/blog/entry_detail.html``, let's
-add the Gravatar images:
+Vamos adicionar as imagens do Gravatar em nosso bloco ``content`` em  ``templates/blog/entry_detail.html``:
 
 .. code-block:: html
 
@@ -117,12 +105,12 @@ add the Gravatar images:
         No comments yet.
     {% endfor %}
 
-If you fire up the development web server and look at a specific blog
-entry, you should see an image for each comment.
+Se você iniciar o servidor da Web de desenvolvimento e examinar uma entrada de blog específica,
+deverá ver uma imagem para cada comentário.
 
 
 .. _gravatar: http://gravatar.com/
-.. _gravatar documentation: http://en.gravatar.com/site/implement/images/
+.. _documentação do Gravatar: http://en.gravatar.com/site/implement/images/
 .. _hashlib: https://docs.python.org/3/library/hashlib.html
 .. _md5: http://en.wikipedia.org/wiki/MD5
 .. _md5 email@example.com: https://duckduckgo.com/?q=md5+email%40example.com
