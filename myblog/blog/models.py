@@ -1,22 +1,23 @@
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 from django.template.defaultfilters import slugify
+
 import hashlib
 
 
 class Entry(models.Model):
     title = models.CharField(max_length=500)
-    author = models.ForeignKey('auth.User')
+    author = models.ForeignKey('auth.User', on_delete=models.PROTECT)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     slug = models.SlugField(default='', editable=False)
 
-    class Meta:
-        verbose_name_plural = "entries"
-
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name_plural = "entries"      
 
     def get_absolute_url(self):
         kwargs = {'year': self.created_at.year,
@@ -31,19 +32,20 @@ class Entry(models.Model):
         super().save(*args, **kwargs)
 
 class Comment(models.Model):
-    entry = models.ForeignKey(Entry)
+    entry = models.ForeignKey(Entry, on_delete=models.PROTECT)
     name = models.CharField(max_length=100)
     email = models.EmailField()
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
+    
 
     def __str__(self):
         return self.body
+    
+    # def gravatar_url(self):
+    #     # Get the md5 hash of the email address
+    #     md5 = hashlib.md5(self.email.encode())
+    #     digest = md5.hexdigest()
 
-    def gravatar_url(self):
-        # Get the md5 hash of the email address
-        md5 = hashlib.md5(self.email.encode())
-        digest = md5.hexdigest()
-
-        return 'http://www.gravatar.com/avatar/{}'.format(digest)
+    #     return 'http://www.gravatar.com/avatar/{}'.format(digest)
