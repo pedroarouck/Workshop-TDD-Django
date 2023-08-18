@@ -1,53 +1,53 @@
 Workshop: Test-Driven Web Development with Django
 =================================================
 
-Thank you for attending `San Diego Python <http://pythonsd.org/>`_'s workshop on test-driven
-development with the `Django <https://www.djangoproject.com/>`_ web framework. In this one-day
-workshop, you will learn to build a well-tested, Django-based website.
+Este material faz parte do workshop `San Diego Python <http://pythonsd.org/>`_ sobre testes orientados a
+desenvolvimento com o framework web `Django <https://www.djangoproject.com/>`_. Neste workshop de um dia,
+você aprenderá a construir um site bem testado e baseado em Django.
 
-This workshop was made possible by a grant from the `Python Software Foundation <http://python.org/psf/>`_
-`Outreach and Education Committee <http://python.org/psf/committees/#outreach-education-committee-orec>`_.
+Este workshop foi possível graças a uma doação da `Python Software Foundation <http://python.org/psf/>`_
+`Comitê de Extensão e Educação <https://www.python.org/psf/workgroups/#outreach-education-work-group>`_.
 
 
-Why test-driven development?
-----------------------------
+Por que desenvolvimento orientado a testes?
+-------------------------------------------
 
-When creating a new application, at first you may not need tests.  Tests can
-be difficult to write at first and they take time, but they can save an
-enormous amount of manual troubleshooting time.
+Ao criar um novo aplicativo, a princípio você pode não precisar de testes. Os testes
+podem ser difíceis de escrever no início e levam tempo, mas podem salvar uma
+enorme quantidade de tempo de solução manual de problemas.
 
-As your application grows, it becomes more difficult to grow and to refactor
-your code.  There's always the risk that a change in one part of your
-application will break another part. A good collection of automated tests that
-go along with an application can verify that changes you make to one part of
-the software do not break another.
+À medida que seu aplicativo cresce, fica mais difícil crescer e refatorar
+seu código. Há sempre o risco de que uma mudança em uma parte do seu
+aplicação irá quebrar outra parte. Uma boa coleção de testes automatizados que
+acompanha um aplicativo pode verificar se as alterações feitas em uma parte do
+o software não quebra outro.
 
 
 Prerequisites
 -------------
 
-* `Python <http://www.python.org/download/>`_ 3 (3.4 is recommended)
-* `Install Django <https://docs.djangoproject.com/en/1.7/intro/install/>`_ 1.7
-* The `Django tutorials <https://docs.djangoproject.com/en/1.7/intro/tutorial01/>`_
+* `Python <http://www.python.org/download/>`_ 3 (3.11 is recommended)
+* `Install Django <https://www.djangoproject.com/download/>`_ 4.2
+* `Django tutorials <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_
 
-You do not need to be a Django expert to attend this workshop or to find this
-document useful. However, the goal of getting a working website with tests in
-a single day is a lofty one and so we ask that attendees come with Python
-and Django installed. We also encourage people to go through the Django
-tutorials beforehand in order to get the most out of the workshop.
-
-
-The Project: building a blog
-----------------------------
-
-The right of passage for most web developers is their own blog system. There
-are hundreds of solutions out there.  The features and requirements are
-generally well understood. Writing one with TDD becomes a kind of `code kata
-<http://codekata.pragprog.com/>`_ that can help you work through all kinds of
-aspects of the Django framework.
+Você não precisa ser um especialista em Django para participar deste workshop ou encontrar este
+documento útil. No entanto, o objetivo de obter um site funcional com testes em
+um único dia é grandioso e por isso pedimos que os participantes venham com Python
+e Django instalado. Nós também encorajamos as pessoas a passarem pelo Django
+tutoriais de antemão, a fim de tirar o máximo proveito do workshop.
 
 
-Contents
+O Projeto: construindo um blog
+------------------------------
+
+O rito de passagem para a maioria dos desenvolvedores da web é seu próprio sistema de blog.
+Existem centenas de soluções por aí. As características e requisitos são
+geralmente bem compreendida. Escrever um com TDD torna-se uma espécie de `code kata
+<http://codekata.com/>`_ que pode ajudá-lo a trabalhar com todos os tipos de
+aspectos do framework Django.
+
+
+Conteúdo
 --------
 
 .. toctree::
@@ -65,12 +65,12 @@ Contents
    10-gravatars
 
 
-Getting Help & Contributing
----------------------------
+Obtendo ajuda e contribuindo
+----------------------------
 
-Markdown source files and working code examples for these tutorials can be
-found on `Github <https://github.com/pythonsd/test-driven-django-development>`_.
-If you found a bug or have a suggestion to improve or extend the tutorials,
-please open an issue or a pull request.
+Arquivos de origem Markdown e exemplos de código de trabalho para esses tutoriais podem ser
+encontrado no `Github <https://github.com/pythonsd/test-driven-django-development>`_.
+Se você encontrou um bug ou tem uma sugestão para melhorar ou estender os tutoriais,
+por favor, abra um issue ou um pull request.
 
-These tutorials are provided under a Creative Commons license (CC BY-SA 3.0).
+Esses tutoriais são fornecidos sob uma licença Creative Commons (CC BY-SA 3.0).
