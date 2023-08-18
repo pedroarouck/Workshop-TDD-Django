@@ -1,71 +1,71 @@
 Database Migrations
 ===================
 
-If you have a database, you should be using `migrations`_ to manage
-changes in your database schema.
+Se você tiver um banco de dados, deverá usar `migrações`_ para gerenciar
+alterações no esquema do banco de dados
 
-Let's learn about migrations to future-proof our website against
-database changes.
+Vamos aprender sobre migrações para preparar nosso site para o futuro
+contra alterações no banco de dados.
 
-Making Migrations
------------------
+Fazendo Migrations
+-------------------
 
-We created our project using migrations, so let's look at the
-migrations we already have.
+Criamos nosso projeto usando migrações, então vamos ver as migrações
+que já temos.
 
-Right now we only have one app called ``blog``. We can find the
-migrations in that app's ``migrations`` package:
+No momento, temos apenas um aplicativo chamado ``blog``. Podemos encontrar
+as migrações no pacote ``migrations`` desse aplicativo:
 
 .. code-block:: bash
 
     migrations
     ├── 0001_initial.py
-    ├── 0002_auto_20141019_0232.py
+    ├── 0002_alter_entry_options_comment.py
     └── __init__.py
 
-Now let's look at the migrations we have so far
+Agora vamos ver as migrações que temos até agora
 
 .. code-block:: bash
 
-    $ python manage.py migrate --list
+    $ python manage.py showmigrations
     admin
      [X] 0001_initial
     auth
      [X] 0001_initial
     blog
      [X] 0001_initial
-     [X] 0002_auto_20141019_0232
+     [X] 0002_alter_entry_options_comment
     contenttypes
      [X] 0001_initial
     sessions
      [X] 0001_initial
 
-We actually have quite a few. Since migrations are a feature of Django
-itself, each reusable app distributed with Django contains migrations
-as well, and will allow you to automatically update your database
-schema when their models change.
+Como as migrações são um recurso do próprio Django, cada aplicativo
+reutilizável distribuído com o Django também contém migrações e
+permitirá que você atualize automaticamente seu esquema de banco
+de dados quando seus modelos mudarem.
 
-Each of those migration files stores instructions on how to correctly
-alter the database with each change.
+Cada um desses arquivos de migração armazena instruções sobre
+como alterar corretamente o banco de dados a cada alteração.
 
-Using Migrate
--------------
+Usando Migrate
+--------------
 
-Whenever we make a change to our models that would require a change in
-our database (e.g. adding a model, adding a field, removing a field,
-etc.) we need to create a schema migration file for our change.
+Sempre que fizermos uma alteração em nossos modelos que exija uma alteração
+em nosso banco de dados (por exemplo, adicionar um modelo, adicionar um campo,
+remover um campo etc.), precisamos criar um arquivo de migração de esquema para nossa alteração.
 
-To do this we will use the ``makemigrations`` command.  Let's try it out right now:
+Para fazer isso, usaremos o comando ``makemigrations``. Vamos experimentar agora:
 
 .. code-block:: bash
 
     $ python manage.py makemigrations blog
     No changes detected in app 'blog'
 
-No migration was created because we have not made any changes to our models.
+Nenhuma migração foi criada porque não fizemos nenhuma alteração em nossos modelos.
 
 .. TIP::
 
-    For more information check out `migrations`_ in the Django documentation.
+    Para mais informações confira `migrações`_ na documentação do Django.
 
-.. _migrations: https://docs.djangoproject.com/en/1.7/topics/migrations/
+.. _migrações: https://docs.djangoproject.com/en/4.2/topics/migrations/
