@@ -1,47 +1,48 @@
-Custom template tags
-====================
+Tags de template personalizadas
+===============================
 
-Let's make our blog list recent entries in the sidebar.
+Vamos fazer nosso blog listar entradas recentes na barra lateral.
 
-How are we going to do this?  We could loop through blog entries in our
-``base.html`` template, but that means we would need to include a list of our
-recent blog entries in the template context for all of our views.  That could
-result in duplicate code and we don't like duplicate code.
+Como vamos fazer isso? Poderíamos percorrer as entradas de blog em nosso template ``base.html``,
+mas isso significa que precisaríamos incluir uma lista de nossas entradas de blog recentes no
+contexto do template para todas as nossas exibições. Isso pode resultar em código duplicado e
+não gostamos de código duplicado.
 
 .. TIP::
 
-    If you didn't fully understand the last paragraph, that's okay. `DRY`_ or
-    "Don't Repeat Yourself" is a rule of thumb for good programming practice.
-    You might want to read through the Django `template documentation`_ again
-    later.
+    Se você não entendeu completamente o último parágrafo, tudo bem. `DRY`_ ou
+    "Don't Repeat Yourself" é uma regra prática para uma boa prática de programação.
+    Você pode querer ler a `documentação de template`_ Django novamente mais tarde.
 
-To avoid duplicate code, let's create a `custom template tag`_ to help us
-display recent blog entries in the sidebar on every page.
+Para evitar código duplicado, vamos criar uma `tag de template personalizadas`_
+para nos ajudar a exibir entradas de blog recentes na barra lateral de todas as páginas
 
 .. NOTE::
-  A custom template tag that itself fires a SQL query enables our HTML
-  templates to add more SQL queries to our view. That hides some behavior. It's
-  too early at this point, but that query should be cached if we expect to use
-  this often.
+    Uma tag de template personalizada que aciona uma consulta SQL permite que nossos
+    templates HTML adicionem mais consultas SQL à nossa visualização. Isso esconde
+    algum comportamento. É muito cedo neste ponto, mas essa consulta deve ser armazenada
+    em cache se esperamos usá-la com frequência.
 
 
-Where
+Onde
 -----
 
-Let's create a template library called ``blog_tags``.  Why ``blog_tags``?
-Because naming our tag library after our app will make our template imports
-more understandable. We can use this template library in our templates by
-writing ``{% load blog_tags %}`` near the top of our template file.
+Vamos criar uma biblioteca de modelos chamada ``blog_tags``. Por quê ``blog_tags``?
+Porque nomear nossa biblioteca de tags de acordo com nosso aplicativo tornará
+nossas importações de modelo mais compreensíveis. Podemos usar esta biblioteca
+de template em nossos templates escrevendo ``{% load blog_tags %}``  próximo ao
+topo de nosso arquivo de template.
 
-Create a ``templatetags`` directory in our ``blog`` app and create two empty
-Python files within this directory: ``blog_tags.py`` (which will hold our
-template library code) and ``__init__.py`` (to make this directory into a Python
-package).
+Crie um diretório ``templatetags`` em nosso aplicativo blog e crie
+dois arquivos Python vazios dentro desse diretório: ``blog_tags.py``
+(que conterá nosso código de biblioteca de modelos) e ``__init__.py``
+(para transformar esse diretório em um pacote Python).
 
 We should now have something like this::
 
     blog
     ├── admin.py
+    ├── apps.py
     ├── forms.py
     ├── __init__.py
     ├── migrations
@@ -57,21 +58,20 @@ We should now have something like this::
     └── views.py
 
 
-Creating an inclusion tag
--------------------------
+Criando uma tag de inclusão
+---------------------------
 
-Let's create an `inclusion tag`_ to query for recent blog entries and render a list
-of them.  We'll name our template tag ``entry_history``.
+Vamos criar uma `tag de inclusão`_ para consultar entradas de blog recentes e renderizar
+ uma lista delas. Vamos nomear nossa tag de modelo ``entry_history``.
 
-Let's start by rendering an empty template with an empty template context
-dictionary. First let's create a ``templates/blog/_entry_history.html``
-file with some dummy text:
+Vamos começar renderizando um modelo vazio com um dicionário de contexto de modelo vazio.
+Primeiro, vamos criar um arquivo ``templates/blog/_entry_history.html`` com algum texto fictício:
 
 .. code-block:: html
 
     <p>Dummy text.</p>
 
-Now we'll create our ``blog/templatetags/blog_tags.py`` module with our ``entry_history`` template tag:
+Agora vamos criar nosso módulo ``blog/templatetags/blog_tags.py`` com nossa tag de template ``entry_history``:
 
 .. code-block:: python
 
@@ -84,34 +84,33 @@ Now we'll create our ``blog/templatetags/blog_tags.py`` module with our ``entry_
     def entry_history():
         return {}
 
-Let's use our tag in our base template file. In our ``base.html`` file, import our new template library by adding the line
-``{% load blog_tags %}`` near the top of the file.
+Vamos usar nossa tag em nosso arquivo de template base. Em nosso arquivo ``base.html``, importe nossa nova biblioteca de
+template adicionando a linha ``{% load blog_tags %}`` próxima ao topo do arquivo.
 
-Then modify our second column to use our ``entry_history`` template tag:
+Em seguida, modifique nossa segunda coluna para usar nossa tag de template ``entry_history``:
 
 .. code-block:: html
 
-    <div class="large-4 columns">
+    <div class="cell large-4">
         <h3>About Me</h3>
         <p>I am a Python developer and I like Django.</p>
         <h3>Recent Entries</h3>
         {% entry_history %}
     </div>
 
-Restart the server and make sure our dummy text appears.
+Reinicie o servidor e certifique-se de que nosso texto fictício apareça.
 
+Fazendo funcionar
+-----------------
 
-Make it work
-------------
+Nós apenas escrevemos código sem escrever nenhum teste. Vamos escrever alguns testes agora.
 
-We just wrote code without writing any tests.  Let's write some tests now.
+No topo de ``blog/tests.py`` precisamos adicionar
+``from django.template import Template, Context``. Precisamos dessas
+importações porque iremos renderizar strings de modelo manualmente para
+testar nossa tag de template.
 
-At the top of ``blog/tests.py`` we need to add
-``from django.template import Template, Context``. We need those
-imports because we will be manually rendering template strings to test
-our template tag.
-
-Now let's add a basic test to our ``blog/tests.py`` file:
+Agora vamos adicionar um teste básico ao nosso arquivo ``blog/tests.py``:
 
 .. code-block:: python
 
@@ -128,33 +127,34 @@ Now let's add a basic test to our ``blog/tests.py`` file:
             self.assertIn(entry.title, rendered)
 
 
-The tricky bits here are ``TEMPLATE``, ``Context({})`` and that ``render()`` call. These should all look somewhat familiar
-from the `django tutorial part 3`_. ``Context({})`` in this case just passes no data to a ``Template`` that we're
-rendering directly in memory. That last assert just checks that the title of the entry is in the text.
+As partes complicadas aqui são ``TEMPLATE``, ``Context({})`` e aquela chamada ``render()``. Tudo isso deve parecer um pouco
+familiar do `tutorial do Django parte 3`_. ``Context({})``, neste caso, não passa dados para um ``Template`` que estamos
+renderizando diretamente na memória. Essa última afirmação apenas verifica se o título da entrada está no texto.
 
-As expected, our test fails because we are not actually displaying any entries with our ``entry_history`` template tag:
+Como esperado, nosso teste falha porque não estamos exibindo nenhuma entrada com nossa tag de template ``entry_history``:
 
 .. code-block:: bash
 
-    $ python manage.py test blog
+    $ coverage run manage.py test blog
+    Found 21 test(s).
     Creating test database for alias 'default'...
+    System check identified no issues (0 silenced).
     .....F...............
     ======================================================================
-    FAIL: test_entry_shows_up (blog.tests.EntryHistoryTagTest)
+    FAIL: test_entry_shows_up (blog.tests.EntryHistoryTagTest.test_entry_shows_up)
     ----------------------------------------------------------------------
     Traceback (most recent call last):
-      ...
+        ...
     AssertionError: 'My entry title' not found in ' <p>Dummy text.</p>'
 
     ----------------------------------------------------------------------
-    Ran 21 tests in 0.132s
+    Ran 21 tests in 0.404s
 
     FAILED (failures=1)
     Destroying test database for alias 'default'...
 
-Let's make our template tag actually display entry history. First we
-will import our ``Entry`` model at the top of our template tag library
-module:
+Vamos fazer com que nossa tag de template realmente exiba o histórico de entradas.
+Primeiro, importaremos nosso modelo ``Entry`` no topo de nosso módulo de biblioteca de tags de template:
 
 .. code-block:: python
 
@@ -162,9 +162,9 @@ module:
 
 .. NOTE::
 
-    For more information on the ``..`` syntax for imports see the Python documentation on `relative imports`_.
+    Para obter mais informações sobre a sintaxe ``..`` para importações, consulte a documentação do Python sobre `importações relativas`_.
 
-Now let's send the last 5 entries in our sidebar:
+Agora vamos enviar as últimas 5 entradas em nossa barra lateral:
 
 .. code-block:: python
 
@@ -172,8 +172,8 @@ Now let's send the last 5 entries in our sidebar:
         entries = Entry.objects.all()[:5]
         return {'entries': entries}
 
-Now we need to update our ``_entry_history.html`` file to display the
-titles of these blog entries:
+Agora precisamos atualizar nosso arquivo ``_entry_history.html`` para exibir os
+títulos dessas entradas de blog:
 
 .. code-block:: html
 
@@ -183,16 +183,15 @@ titles of these blog entries:
         {% endfor %}
     </ul>
 
-Let's run our tests again and make sure they all pass.
+Vamos executar nossos testes novamente e garantir que todos passem.
 
-Making it a bit more robust
----------------------------
+Tornando um pouco mais robusto
+-------------------------------
 
-What happens if we don't have any blog entries yet? The sidebar might
-look a little strange without some text indicating that there aren't
-any blog entries yet.
+O que acontece se ainda não tivermos nenhuma entrada de blog? A barra lateral
+pode parecer um pouco estranha sem algum texto indicando que ainda não há entradas de blog.
 
-Let's add a test for when there are no blog posts:
+Vamos adicionar um teste para quando não houver postagens no blog:
 
 .. code-block:: python
 
@@ -200,10 +199,9 @@ Let's add a test for when there are no blog posts:
         rendered = self.TEMPLATE.render(Context({}))
         self.assertIn("No recent entries", rendered)
 
-The above test is for an edge case. Let's add a test for another edge
-case: when there are more than 5 recent blog entries.  When there are 6
-posts, only the last 5 should be displayed.  Let's add a test for this
-case also:
+O teste acima é para um caso extremo. Vamos adicionar um teste para outro caso extremo:
+quando há mais de 5 entradas de blog recentes. Quando houver 6 postagens, apenas as
+5 últimas devem ser exibidas. Vamos adicionar um teste para este caso também:
 
 .. code-block:: python
 
@@ -211,15 +209,14 @@ case also:
         for n in range(6):
             Entry.objects.create(author=self.user, title="Post #{0}".format(n))
         rendered = self.TEMPLATE.render(Context({}))
-        self.assertIn("Post #5", rendered)
-        self.assertNotIn("Post #6", rendered)
+        self.assertIn("Post #4", rendered)
+        self.assertNotIn("Post #5", rendered)
 
-The ``{% for %}`` template tag allows us to define an ``{% empty %}``
-tag which we will be displayed when there are no blog entries (see
-`for loops`_ documentation).
+A tag de template ``{% for %}`` nos permite definir uma tag ``{% empty %}``
+que será exibida quando não houver entradas de blog (consulte a documentação de `for loops`_).
 
-Update the ``_entry_history.html`` template to utilize the
-``{% empty %}`` tag and make sure the tests pass.
+Atualize o template ``_entry_history.html`` para utilizar a tag ``{% empty %}``
+e certifique-se de que os testes sejam aprovados.
 
 .. code-block:: html
 
@@ -231,51 +228,10 @@ Update the ``_entry_history.html`` template to utilize the
         {% endfor %}
     </ul>
 
-It looks like we still have some problems because our tests still fail:
-
-.. code-block:: bash
-
-    $ python manage.py test blog
-    Creating test database for alias 'default'...
-    .....EE................
-    ======================================================================
-    ERROR: test_entry_shows_up (blog.tests.EntryHistoryTagTest)
-    ----------------------------------------------------------------------
-    Traceback (most recent call last):
-      ...
-    AttributeError: 'EntryHistoryTagTest' object has no attribute 'entry'
-
-    ======================================================================
-    ERROR: test_many_posts (blog.tests.EntryHistoryTagTest)
-    ----------------------------------------------------------------------
-    Traceback (most recent call last):
-      ...
-    AttributeError: 'EntryHistoryTagTest' object has no attribute 'user'
-
-    ----------------------------------------------------------------------
-    Ran 23 tests in 0.164s
-
-    FAILED (errors=2)
-    Destroying test database for alias 'default'...
-
-Try to fix the bugs on your own but don't be afraid to ask for help.
-
-.. HINT::
-
-    There are multiple bugs in our test code. Let's give you a couple of hints on how you can approach debugging and resolving them.
-
-    First of all, for the ``test_no_posts``, think about what is initially being set up in the function ``setUp``. How many entries have been created? What could we do to have no entries created when ``test_no_posts`` is called and executed?
-
-    Secondly, for ``test_many_posts``, read about `slicing`_ and the `range`_ function to resolve the errors that appear during testing.
-
-    .. _range: https://docs.python.org/2/library/functions.html?highlight=slice#range
-    .. _slicing: https://docs.python.org/2/library/functions.html?highlight=slice#slice
-
-
-.. _custom template tag: https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#writing-custom-template-tags
-.. _dry: http://programmer.97things.oreilly.com/wiki/index.php/Don%27t_Repeat_Yourself
+.. _tag de template personalizadas: https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#writing-custom-template-tags
+.. _dry: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 .. _for loops: https://docs.djangoproject.com/en/dev/ref/templates/builtins/#for-empty
-.. _template documentation: https://docs.djangoproject.com/en/1.6/ref/templates/api/
-.. _inclusion tag: https://docs.djangoproject.com/en/1.6/howto/custom-template-tags/#howto-custom-template-tags-inclusion-tags
-.. _django tutorial part 3: https://docs.djangoproject.com/en/1.6/intro/tutorial03/#write-views-that-actually-do-something
-.. _relative imports: http://docs.python.org/2/tutorial/modules.html#intra-package-references
+.. _documentação de template: https://docs.djangoproject.com/en/4.2/topics/templates/
+.. _tag de inclusão: https://docs.djangoproject.com/en/1.6/howto/custom-template-tags/#howto-custom-template-tags-inclusion-tags
+.. _tutorial do Django parte 3: https://docs.djangoproject.com/en/4.2/intro/tutorial03/
+.. _importações relativas: https://docs.python.org/3/tutorial/modules.html#intra-package-references
