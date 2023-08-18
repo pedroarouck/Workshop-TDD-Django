@@ -1,48 +1,43 @@
-Readable URLs
+URLs legíveis
 =============
 
-Our current URL structure doesn't tell us much about the blog entries,
-so let's add date and title information to help users and also search
-engines better identify the entry.
+Nossa estrutura de URL atual não nos diz muito sobre as entradas do blog,
+então vamos adicionar informações de data e título para ajudar os usuários e
+também os mecanismos de pesquisa a identificar melhor a entrada.
 
-For this purpose, we're going to use the URL scheme:
+Para isso, vamos usar o esquema de URL:
 ``/year/month/day/pk-slug/``
 
-Slug is a term coined by the newspaper industry for a short identifier
-for a newspaper article. In our case, we'll be using the Django's
-slugify_ method to convert our text title into a slugified version. For
-example, "This Is A Test Title" would be converted to lowercase with
-spaces replaced by dashes resulting in "this-is-a-test-title" and the
-complete URL might be "/2014/03/15/6-this-is-a-test-title/".
+Slug é um termo cunhado pela indústria jornalística para um pequeno identificador de um artigo de jornal.
+No nosso caso, usaremos o método slugify_ do Django para converter nosso título de texto em uma versão slugificada.
+Por exemplo, "Este é um título de teste" seria convertido em letras minúsculas com espaços substituídos por hífens,
+resultando em “este é um título de teste” e o URL completo pode ser "/2014/03/15/6-este-e-um-titulo-de-teste/".
 
-.. _slugify: https://docs.djangoproject.com/en/1.7/ref/utils/#django.utils.text.slugify
+.. _slugify: https://docs.djangoproject.com/en/4.2/ref/utils/#django.utils.text.slugify
 
 
-First, let's update our Model to handle the new slug field.
+Primeiro, vamos atualizar nosso modelo para lidar com o novo campo slug.
 
 
-Model
------
+Modelo
+------
 
-In our ``Entry`` model, we need to automatically create or update the
-slug of the entry after saving the entry. First, let's add the slug
-field to our ``Entry`` model. Add this after the ``modified_at`` field
-declaration:
+Em nosso modelo ``Entry``, precisamos criar ou atualizar automaticamente
+o slug da entrada após salvá-la. Primeiro, vamos adicionar o campo slug
+ao nosso modelo ``Entry``. Adicione isto após a declaração de campo ``modified_at``:
 
 .. code-block:: python
 
     slug = models.SlugField(default='')
 
 
-Next, we update the save function. We import the slugify method at the
-top of the file:
+Em seguida, atualizamos a função salvar. Importamos o método slugify na parte superior do arquivo:
 
 .. code-block:: python
 
     from django.template.defaultfilters import slugify
 
-Now create a save method in our ``Entry`` model that slugifies the
-title upon saving:
+Agora crie um método save em nosso modelo ``Entry`` que slugifica o título ao salvar:
 
 .. code-block:: python
 
@@ -51,9 +46,8 @@ title upon saving:
         super().save(*args, **kwargs)
 
 
-After this, we will update our ``get_absolute_url()`` method to do a
-reverse of the new URL using our new year, month, day, and slug
-parameters:
+Depois disso, atualizaremos nosso método ``get_absolute_url()`` para fazer um reverse
+da nova URL usando nossos novos parâmetros de ano, mês, dia e slug:
 
 .. code-block:: python
 
@@ -65,52 +59,46 @@ parameters:
                   'pk': self.pk}
         return reverse('entry_detail', kwargs=kwargs)
 
-
-We now have to run South to migrate the database, since we have changed
-the model. Run the command to migrate your database. First, we create
-the new migration (assuming you have finished the previous tutorial
-where you created your initial migration):
+Agora temos que migrar o banco de dados, pois alteramos o modelo.
+Execute o comando para migrar seu banco de dados. Primeiro, criamos a nova migração
+(supondo que você tenha terminado o tutorial anterior onde criou sua migração inicial):
 
 .. code-block:: bash
 
     $ python manage.py makemigrations blog
 
-Next, we run the new migration that we just created:
+Em seguida, executamos a nova migração que acabamos de criar:
 
 .. code-block:: bash
 
     $ python manage.py migrate blog
 
 
-Write the Test
---------------
+Escrever o Teste
+----------------
 
-The first step is to define our test for the title. For this purpose,
-we'll:
+O primeiro passo é definir nosso teste para o título. Para isso, iremos:
 
-#) Create a new blog entry
-#) Find the slug for the blog entry
-#) Perform an HTTP GET request for the new descriptive URL
-   ``/year/month/day/pk-slug/`` for the blog entry
-#) Check that the request succeeded with a code 200
+#) Criar uma nova entrada de blog
+#) Encontrar o slug para a entrada do blog
+#) Executar uma solicitação HTTP GET para o novo URL ``/year/month/day/pk-slug/`` para a entrada do blog
+#) Verificar se a solicitação foi bem-sucedida com um código 200
 
-First we need to import the Python ``datetime`` package and the
-``slugify`` function into our tests file:
+Primeiro precisamos importar o pacote Python ``datetime`` e a função ``slugify`` para nosso arquivo de testes:
 
 .. code-block:: python
 
     from django.template.defaultfilters import slugify
     import datetime
 
-Now let's write our test in the ``EntryViewTest`` class:
+Agora vamos escrever nosso teste na classe ``EntryViewTest``:
 
 .. code-block:: python
 
     def test_url(self):
         title = "This is my test title"
         today = datetime.date.today()
-        entry = Entry.objects.create(title=title, body="body",
-                                     author=self.user)
+        entry = Entry.objects.create(title=title, body="body", author=self.user)
         slug = slugify(title)
         url = "/{year}/{month}/{day}/{pk}-{slug}/".format(
             year=today.year,
@@ -121,66 +109,49 @@ Now let's write our test in the ``EntryViewTest`` class:
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response,
-                                template_name='blog/entry_detail.html')
+        self.assertTemplateUsed(response, template_name='blog/entry_detail.html')
 
-
-Try running the tests again, and you should see one failure for the
-test we just added:
+Tente executar os testes novamente e você verá algumas falhas:
 
 .. code-block:: bash
 
     $ python manage.py test blog
 
 
-URL Pattern
------------
+Padrão de URL
+-------------
 
-Next we are going to change our ``blog/urls.py`` file. Replace your
-code with this:
+Em seguida, vamos alterar nosso arquivo ``blog/urls.py``. Substitua seu código por este:
 
 .. code-block:: python
 
-    from django.conf.urls import url
+    from django.urls import path
+
 
     from . import views
 
     urlpatterns = [
-        url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<pk>\d+)-(?P<slug>[-\w]*)/$', views.EntryDetail.as_view(), name='entry_detail'),
+    path('<int:year>/<int:month>/<int:day>/<int:pk>-<slug:slug>/', views.EntryDetail.as_view(), name='entry_detail'),
     ]
 
-Let's break this down. For this URL pattern ``(?P<year>\d{4})``, the
-outer parentheses are for "capturing" the input. The ``?P<year>``
-specifies that we should capture this into a parameter named "year."
-And the ``\d{4}`` means the value we are capturing should be four
-digits. The next part is the month, where we capture ``\d{1,2}``, which
-captures either one or two digits for the month (January would be 1,
-December would be 12, so 1 or 2 digits will represent the month). And
-for the day, we also capture one or two digits.
+Agora salve o arquivo e tente executar os testes novamente. Você deve ver todos os testes passando.
 
-We capture the pk (i.e. the "primary key" for accessing a Django model)
-with ``(?P<pk>\d+)``.
+.. IMPORTANT::
 
-The next part is capturing the slug in ``(?P<slug>[-\w]*)``. For this
-part, we name the captured variable "slug" and look for alphanumeric
-characters or a dash/hyphen (-).
+    As entradas anteriores à mudança de padrão de URL pode causar com que
+    o site não suba por não terem os parametros necessários para montar a nova URL.
+    Nesse caso, entre na ``interface de adminstração``, exclua as entradas antigas e
+    crie novas entradas.
 
-As you can see from the last part of the pattern, we are using the view
-``EntryDetail``.
-
-Now save the file and try running the tests again. You should see all
-of the tests passing.
-
-Another Test
+Outro Teste
 ------------
 
-What would happen if we changed the slug or an invalid date was given
-in the URL?  This shouldn't matter because we only check for the model
-``pk``.
+O que aconteceria se mudássemos o slug ou uma data inválida fosse fornecida na URL?
+Isso não deveria importar, porque verificamos apenas o modelo ``pk``.
 
-Let's write a couple more tests for this case to make sure the correct
-page is displayed in this case, and for when the id does not exist. Our
-tests should look like this:
+Vamos escrever mais alguns testes para este caso para garantir que a
+página correta seja exibida neste caso e para quando o id não existir.
+Nossos testes devem ficar assim:
 
 .. code-block:: python
 
@@ -199,22 +170,21 @@ tests should look like this:
         response = self.client.get("/0000/00/00/0-invalid/")
         self.assertEqual(response.status_code, 404)
 
-Now let's run our tests and make sure they still pass.
+Agora vamos executar nossos testes e garantir que eles ainda sejam aprovados.
 
 
 .. TIP::
 
-    If you try to add an entry in the admin, you will notice that you
-    must write a slug (it isn't optional) but then whatever you write
-    is overwritten in the ``Entry.save()`` method. There are a couple
-    ways to resolve this but one way is to set the ``SlugField`` in
-    our ``Entry`` model to be ``editable=False`` which will hide it in
-    the admin or other forms:
+    Se você tentar adicionar uma entrada no admin, notará que deve escrever um slug
+    (não é opcional), mas o que quer que você escreva será substituído no
+    método ``Entry.save()``. Existem algumas maneiras de resolver isso,
+    mas uma maneira é definir o ``SlugField`` em nosso modelo ``Entry`` para
+    ``editable=False`` e ocultá-lo no administrador ou em outros formulários:
 
     .. code-block:: python
 
         slug = SlugField(editable=False)
 
-    See the Django docs on editable_ for details.
+    Consulte os documentos do Django em editáveis_ para obter detalhes.
 
-    .. _editable: https://docs.djangoproject.com/en/1.7/ref/models/fields/#editable
+    .. _editáveis: https://docs.djangoproject.com/en/4.2/ref/models/fields/#editable
